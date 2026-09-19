@@ -6,18 +6,21 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin-top: 30px; background-color: #f4f4f9; }
-        .container { background: white; padding: 25px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 550px; text-align: left; }
+        .container { background: white; padding: 25px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 620px; text-align: left; }
         textarea { width: 100%; height: 120px; padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; box-sizing: border-box; }
-        button { padding: 10px 15px; font-size: 14px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+        button { padding: 8px 12px; font-size: 13px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 5px; margin-right: 3px; }
         button:hover { background-color: #0056b3; }
-        .btn-danger { background-color: #dc3545; margin-left: 5px; }
+        .btn-transcript { background-color: #17a2b8; }
+        .btn-transcript:hover { background-color: #138496; }
+        .btn-danger { background-color: #dc3545; }
         .btn-danger:hover { background-color: #c82333; }
         h2 { text-align: center; color: #333; }
-        ul { list-style-type: none; padding: 0; max-height: 250px; overflow-y: auto; border: 1px solid #eee; margin-top: 15px; border-radius: 4px; }
-        li { padding: 8px 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        ul { list-style-type: none; padding: 0; max-height: 300px; overflow-y: auto; border: 1px solid #eee; margin-top: 15px; border-radius: 4px; }
+        li { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
         li:last-child { border-bottom: none; }
-        .firma-col { font-weight: bold; color: #444; width: 40%; text-align: left; }
-        .broj-col { color: #007bff; width: 35%; text-align: left; }
+        .firma-col { font-weight: bold; color: #444; width: 30%; }
+        .broj-col { color: #007bff; width: 25%; }
+        .info-tekst { font-size: 11px; color: #555; margin-top: 3px; }
     </style>
 </head>
 <body>
@@ -25,7 +28,7 @@
 <div class="container">
     <h2>Telnyx Upravljanje Brojevima</h2>
     <p>Unesi više unosa odjednom (Format: <strong>Naziv firme, Broj</strong> - svaki u novi red):</p>
-    <textarea id="listaBrojeva" placeholder="B&B Woodworking, 5551111111&#10;Apex Roofing, +15552222222&#10;GreenLeaf Tree, 5553333333&#10;Precision Auto, 5554444444&#10;Summit Locksmith, 5555555555"></textarea>
+    <textarea id="listaBrojeva" placeholder="B&B Woodworking, 5551111111&#10;Apex Roofing, +15552222222"></textarea>
     <br>
     <button onclick="sacuvajPodatke()">Sačuvaj sve u memoriju</button>
     <button onclick="ocistiMemoriju()" class="btn-danger">Obriši sve</button>
@@ -35,8 +38,8 @@
 </div>
 
 <script>
-    const SUPABASE_URL = 'https://tvoj-supabase-url.supabase.co';
-    const SUPABASE_ANON_KEY = 'tvoj-anon-kljuc';
+    const SUPABASE_URL = 'https://lvvidixbdtdjfwxxxqzr.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_DMELD0DRGCKd9u12lowjgw_sPBal...'; // Unesi svoj ključ ovdje
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -68,11 +71,9 @@
         let noveStavke = [];
         let linije = tekst.split('\n');
 
-        // Prolazimo kroz svaki red unosa
         for (let linija of linije) {
             if (!linija.trim()) continue;
 
-            // Razdvajamo po zarezima ili tabulatorima
             let dijelovi = linija.split(/,|\t/);
             
             if (dijelovi.length >= 2) {
@@ -81,7 +82,12 @@
                 let broj = formatirajUSBroj(siroviBroj);
 
                 if (firma && broj) {
-                    noveStavke.push({ firma: firma, broj: broj });
+                    noveStavke.push({ 
+                        firma: firma, 
+                        broj: broj,
+                        status: 'Nije zvan',
+                        vrijeme: ''
+                    });
                 }
             }
         }
@@ -92,10 +98,9 @@
         }
 
         let postojeci = JSON.parse(localStorage.getItem('telnyx_saved_entries')) || [];
-        
-        // Spajamo postojeće i nove, sprečavajući duplikate po broju telefona
         let kombinovano = [...postojeci];
-        noveStavke.forEach(novi => {
+        
+        noveStavke.push = noveStavke.forEach(novi => {
             if (!kombinovano.some(p => p.broj === novi.broj)) {
                 kombinovano.push(novi);
             }
@@ -104,7 +109,7 @@
         localStorage.setItem('telnyx_saved_entries', JSON.stringify(kombinovano));
         document.getElementById('listaBrojeva').value = '';
         prikaziPodatke();
-        alert('Uspješno sačuvano ' + noveStavke.length + ' unosa odjednom!');
+        alert('Uspješno sačuvano unosa!');
     }
 
     function prikaziPodatke() {
@@ -121,10 +126,14 @@
         unosi.forEach((unos, index) => {
             let li = document.createElement('li');
             li.innerHTML = `
-                <span class="firma-col">${unos.firma}</span>
-                <span class="broj-col">${unos.broj}</span>
                 <div>
-                    <button onclick="pozoviBroj('${unos.broj}', this)">Pozovi</button>
+                    <span class="firma-col"><strong>${unos.firma}</strong></span>
+                    <span class="broj-col">${unos.broj}</span>
+                    <div class="info-tekst">Status: ${unos.status} ${unos.vrijeme ? '(' + unos.vrijeme + ')' : ''}</div>
+                </div>
+                <div>
+                    <button onclick="pozoviBroj('${unos.broj}', ${index}, this)">Pozovi</button>
+                    <button class="btn-transcript" onclick="otvoriTranscript('${unos.broj}')">Transcript</button>
                     <button onclick="obrisiJedan(${index})" class="btn-danger">X</button>
                 </div>
             `;
@@ -132,7 +141,7 @@
         });
     }
 
-    async function pozoviBroj(telefon, btnElement) {
+    async function pozoviBroj(telefon, index, btnElement) {
         btnElement.innerText = 'Zove...';
         btnElement.disabled = true;
 
@@ -143,13 +152,25 @@
 
             if (error) throw error;
 
-            btnElement.innerText = 'Pozvano!';
-            btnElement.style.backgroundColor = 'green';
+            let datumVrijeme = new Date().toLocaleString('hr-HR');
+
+            let unosi = JSON.parse(localStorage.getItem('telnyx_saved_entries')) || [];
+            unosi[index].status = 'Pozvan';
+            unosi[index].vrijeme = datumVrijeme;
+            localStorage.setItem('telnyx_saved_entries', JSON.stringify(unosi));
+
+            prikaziPodatke();
         } catch (err) {
-            btnElement.innerText = 'Greška';
-            btnElement.style.backgroundColor = 'red';
+            alert('Greška pri pozivanju: ' + err.message);
+            btnElement.innerText = 'Pozovi';
+            btnElement.disabled = false;
             console.error(err);
         }
+    }
+
+    function otvoriTranscript(telefon) {
+        // Otvara stranicu transcript.html i proslijeđuje broj u linku (opcionalno)
+        window.location.href = `transcript.html?phone=${encodeURIComponent(telefon)}`;
     }
 
     function obrisiJedan(index) {
