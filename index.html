@@ -26,7 +26,7 @@
 <div class="container">
     <h2>Telnyx Upravljanje Brojevima</h2>
     <p>Unesi više brojeva (svaki u novi red):</p>
-    <textarea id="listaBrojeva" placeholder="+38761111111&#10;+38762222222"></textarea>
+    <textarea id="listaBrojeva" placeholder="5551111111&#10;5552222222"></textarea>
     <br>
     <button onclick="sacuvajBrojeve()">Sačuvaj u memoriju</button>
     <button onclick="ocistiMemoriju()" class="btn-danger">Obriši sve</button>
@@ -45,6 +45,33 @@
     // Učitaj brojeve iz LocalStorage-a pri pokretanju stranice
     window.onload = prikaziBrojeve;
 
+    // Funkcija koja formatira pojedinačni broj u američki E.164 format (+1...)
+    function formatirajUSBroj(br) {
+        // Uklanjamo razmake, crtice, točke i zagrade
+        br = br.replace(/[\s\-\.\(\)]/g, '');
+
+        if (br === "") return "";
+
+        // Ako počinje s 00, zamijenimo s +
+        if (br.startsWith('00')) {
+            br = '+' + br.substring(2);
+        }
+        // Ako ima 10 znamenki (američki lokalni broj), dodajemo +1
+        else if (br.length === 10 && !br.startsWith('+')) {
+            br = '+1' + br;
+        }
+        // Ako počinje s 1 i ima 11 znamenki bez plusa
+        else if (br.length === 11 && br.startsWith('1')) {
+            br = '+' + br;
+        }
+        // Ako nema plusa, a duži je
+        else if (!br.startsWith('+') && br.length > 6) {
+            br = '+' + br;
+        }
+
+        return br;
+    }
+
     function sacuvajBrojeve() {
         const tekst = document.getElementById('listaBrojeva').value;
         if (!tekst.trim()) {
@@ -52,8 +79,10 @@
             return;
         }
 
-        // Razdvoji po novom redu, očisti praznine i izbaci prazne linije
-        let noviBrojevi = tekst.split('\n').map(b => b.trim()).filter(b => b.length > 0);
+        // Razdvoji po novom redu, očisti i formatiraj svaki broj u US format
+        let noviBrojevi = tekst.split('\n')
+            .map(b => formatirajUSBroj(b.trim()))
+            .filter(b => b.length > 0);
         
         // Uzmi postojeće iz LocalStorage-a
         let postojeci = JSON.parse(localStorage.getItem('telnyx_saved_numbers')) || [];
@@ -64,7 +93,7 @@
         localStorage.setItem('telnyx_saved_numbers', JSON.stringify(kombinovano));
         document.getElementById('listaBrojeva').value = '';
         prikaziBrojeve();
-        alert('Brojevi uspješno sačuvani u memoriju!');
+        alert('Brojevi uspješno sačuvani i formatirani!');
     }
 
     function prikaziBrojeve() {
