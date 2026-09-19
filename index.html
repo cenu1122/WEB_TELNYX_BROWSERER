@@ -152,7 +152,7 @@
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer sb_publishable_DMELD0DRGcKD9u12lowjgw_sPBaLqhT'
                 },
-                body: JSON.stringify({ phone_number: telefon })
+                body: JSON.stringify({ to: telefon })
             });
 
             if (!response.ok) {
