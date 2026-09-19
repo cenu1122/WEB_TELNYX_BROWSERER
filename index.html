@@ -3,116 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <title>Telnyx Masovni Pozivi - Lang Love</title>
-    <!-- Učitavanje Supabase JavaScript biblioteke -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin-top: 30px; background-color: #f4f4f9; }
-        .container { background: white; padding: 25px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 450px; text-align: left; }
-        textarea { width: 100%; height: 100px; padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; box-sizing: border-box; }
+        .container { background: white; padding: 25px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 550px; text-align: left; }
+        textarea { width: 100%; height: 120px; padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; box-sizing: border-box; }
         button { padding: 10px 15px; font-size: 14px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
         button:hover { background-color: #0056b3; }
         .btn-danger { background-color: #dc3545; margin-left: 5px; }
         .btn-danger:hover { background-color: #c82333; }
         h2 { text-align: center; color: #333; }
-        ul { list-style-type: none; padding: 0; max-height: 200px; overflow-y: auto; border: 1px solid #eee; margin-top: 15px; border-radius: 4px; }
+        ul { list-style-type: none; padding: 0; max-height: 250px; overflow-y: auto; border: 1px solid #eee; margin-top: 15px; border-radius: 4px; }
         li { padding: 8px 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
         li:last-child { border-bottom: none; }
-        .status-ok { color: green; font-weight: bold; }
-        .status-err { color: red; font-weight: bold; }
+        .firma-col { font-weight: bold; color: #444; width: 40%; text-align: left; }
+        .broj-col { color: #007bff; width: 35%; text-align: left; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>Telnyx Upravljanje Brojevima</h2>
-    <p>Unesi više brojeva (svaki u novi red):</p>
-    <textarea id="listaBrojeva" placeholder="5551111111&#10;5552222222"></textarea>
+    <p>Unesi više unosa odjednom (Format: <strong>Naziv firme, Broj</strong> - svaki u novi red):</p>
+    <textarea id="listaBrojeva" placeholder="B&B Woodworking, 5551111111&#10;Apex Roofing, +15552222222&#10;GreenLeaf Tree, 5553333333&#10;Precision Auto, 5554444444&#10;Summit Locksmith, 5555555555"></textarea>
     <br>
-    <button onclick="sacuvajBrojeve()">Sačuvaj u memoriju</button>
+    <button onclick="sacuvajPodatke()">Sačuvaj sve u memoriju</button>
     <button onclick="ocistiMemoriju()" class="btn-danger">Obriši sve</button>
 
-    <h3>Sačuvani brojevi:</h3>
-    <ul id="prikazBrojeva"></ul>
+    <h3>Sačuvani unosi:</h3>
+    <ul id="prikazPodataka"></ul>
 </div>
 
 <script>
-    // 1. Ovdje unesi svoje Supabase podatke
     const SUPABASE_URL = 'https://tvoj-supabase-url.supabase.co';
     const SUPABASE_ANON_KEY = 'tvoj-anon-kljuc';
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Učitaj brojeve iz LocalStorage-a pri pokretanju stranice
-    window.onload = prikaziBrojeve;
+    window.onload = prikaziPodatke;
 
-    // Funkcija koja formatira pojedinačni broj u američki E.164 format (+1...)
     function formatirajUSBroj(br) {
-        // Uklanjamo razmake, crtice, točke i zagrade
         br = br.replace(/[\s\-\.\(\)]/g, '');
-
         if (br === "") return "";
 
-        // Ako počinje s 00, zamijenimo s +
         if (br.startsWith('00')) {
             br = '+' + br.substring(2);
-        }
-        // Ako ima 10 znamenki (američki lokalni broj), dodajemo +1
-        else if (br.length === 10 && !br.startsWith('+')) {
+        } else if (br.length === 10 && !br.startsWith('+')) {
             br = '+1' + br;
-        }
-        // Ako počinje s 1 i ima 11 znamenki bez plusa
-        else if (br.length === 11 && br.startsWith('1')) {
+        } else if (br.length === 11 && br.startsWith('1')) {
+            br = '+' + br;
+        } else if (!br.startsWith('+') && br.length > 6) {
             br = '+' + br;
         }
-        // Ako nema plusa, a duži je
-        else if (!br.startsWith('+') && br.length > 6) {
-            br = '+' + br;
-        }
-
         return br;
     }
 
-    function sacuvajBrojeve() {
+    function sacuvajPodatke() {
         const tekst = document.getElementById('listaBrojeva').value;
         if (!tekst.trim()) {
-            alert('Molimo unesite barem jedan broj!');
+            alert('Molimo unesite podatke!');
             return;
         }
 
-        // Razdvoji po novom redu, očisti i formatiraj svaki broj u US format
-        let noviBrojevi = tekst.split('\n')
-            .map(b => formatirajUSBroj(b.trim()))
-            .filter(b => b.length > 0);
+        let noveStavke = [];
+        let linije = tekst.split('\n');
+
+        // Prolazimo kroz svaki red unosa
+        for (let linija of linije) {
+            if (!linija.trim()) continue;
+
+            // Razdvajamo po zarezima ili tabulatorima
+            let dijelovi = linija.split(/,|\t/);
+            
+            if (dijelovi.length >= 2) {
+                let firma = dijelovi[0].trim();
+                let siroviBroj = dijelovi.slice(1).join('').trim();
+                let broj = formatirajUSBroj(siroviBroj);
+
+                if (firma && broj) {
+                    noveStavke.push({ firma: firma, broj: broj });
+                }
+            }
+        }
+
+        if (noveStavke.length === 0) {
+            alert('Neispravan format! Provjerite jeste li odvojili naziv firme i broj zarezom.');
+            return;
+        }
+
+        let postojeci = JSON.parse(localStorage.getItem('telnyx_saved_entries')) || [];
         
-        // Uzmi postojeće iz LocalStorage-a
-        let postojeci = JSON.parse(localStorage.getItem('telnyx_saved_numbers')) || [];
-        
-        // Spoji i ukloni duplikate
-        let kombinovano = [...new Set([...postojeci, ...noviBrojevi])];
-        
-        localStorage.setItem('telnyx_saved_numbers', JSON.stringify(kombinovano));
+        // Spajamo postojeće i nove, sprečavajući duplikate po broju telefona
+        let kombinovano = [...postojeci];
+        noveStavke.forEach(novi => {
+            if (!kombinovano.some(p => p.broj === novi.broj)) {
+                kombinovano.push(novi);
+            }
+        });
+
+        localStorage.setItem('telnyx_saved_entries', JSON.stringify(kombinovano));
         document.getElementById('listaBrojeva').value = '';
-        prikaziBrojeve();
-        alert('Brojevi uspješno sačuvani i formatirani!');
+        prikaziPodatke();
+        alert('Uspješno sačuvano ' + noveStavke.length + ' unosa odjednom!');
     }
 
-    function prikaziBrojeve() {
-        const lista = document.getElementById('prikazBrojeva');
+    function prikaziPodatke() {
+        const lista = document.getElementById('prikazPodataka');
         lista.innerHTML = '';
         
-        let brojevi = JSON.parse(localStorage.getItem('telnyx_saved_numbers')) || [];
+        let unosi = JSON.parse(localStorage.getItem('telnyx_saved_entries')) || [];
         
-        if (brojevi.length === 0) {
-            lista.innerHTML = '<li style="text-align:center; color:#888;">Nema sačuvanih brojeva</li>';
+        if (unosi.length === 0) {
+            lista.innerHTML = '<li style="text-align:center; color:#888; display:block;">Nema sačuvanih unosa</li>';
             return;
         }
 
-        brojevi.forEach((broj, index) => {
+        unosi.forEach((unos, index) => {
             let li = document.createElement('li');
             li.innerHTML = `
-                <span>${broj}</span>
+                <span class="firma-col">${unos.firma}</span>
+                <span class="broj-col">${unos.broj}</span>
                 <div>
-                    <button onclick="pozoviBroj('${broj}', this)">Pozovi</button>
+                    <button onclick="pozoviBroj('${unos.broj}', this)">Pozovi</button>
                     <button onclick="obrisiJedan(${index})" class="btn-danger">X</button>
                 </div>
             `;
@@ -141,16 +153,16 @@
     }
 
     function obrisiJedan(index) {
-        let brojevi = JSON.parse(localStorage.getItem('telnyx_saved_numbers')) || [];
-        brojevi.splice(index, 1);
-        localStorage.setItem('telnyx_saved_numbers', JSON.stringify(brojevi));
-        prikaziBrojeve();
+        let unosi = JSON.parse(localStorage.getItem('telnyx_saved_entries')) || [];
+        unosi.splice(index, 1);
+        localStorage.setItem('telnyx_saved_entries', JSON.stringify(unosi));
+        prikaziPodatke();
     }
 
     function ocistiMemoriju() {
-        if (confirm('Da li ste sigurni da želite obrisati sve sačuvane brojeve?')) {
-            localStorage.removeItem('telnyx_saved_numbers');
-            prikaziBrojeve();
+        if (confirm('Da li ste sigurni da želite obrisati sve sačuvane podatke?')) {
+            localStorage.removeItem('telnyx_saved_entries');
+            prikaziPodatke();
         }
     }
 </script>
