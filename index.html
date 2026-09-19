@@ -142,37 +142,40 @@
     }
 
     async function pozoviBroj(telefon, index, btnElement) {
-        btnElement.innerText = 'Zove...';
-        btnElement.disabled = true;
+    btnElement.innerText = 'Zove...';
+    btnElement.disabled = true;
 
-        try {
-            const { data, error } = await supabaseClient.functions.invoke('TELNYX_POZIVI', {
-                body: { phone_number: telefon }
-            });
+    try {
+        const response = await fetch('https://lvvidixbdtdjfwxxxqzr.supabase.co/functions/v1/TELNYX_POZIVI', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer OVDJE_STAVI_SVOJ_ANON_KLJUC' // Unesi svoj publishable/anon ključ ovdje
+            },
+            body: JSON.stringify({ phone_number: telefon })
+        });
 
-            if (error) throw error;
-
-            let datumVrijeme = new Date().toLocaleString('hr-HR');
-
-            let unosi = JSON.parse(localStorage.getItem('telnyx_saved_entries')) || [];
-            unosi[index].status = 'Pozvan';
-            unosi[index].vrijeme = datumVrijeme;
-            localStorage.setItem('telnyx_saved_entries', JSON.stringify(unosi));
-
-            prikaziPodatke();
-        } catch (err) {
-            alert('Greška pri pozivanju: ' + err.message);
-            btnElement.innerText = 'Pozovi';
-            btnElement.disabled = false;
-            console.error(err);
+        if (!response.ok) {
+            throw new Error('Server je vratio grešku: ' + response.status);
         }
-    }
 
-    function otvoriTranscript(telefon) {
-        // Otvara stranicu transcript.html i proslijeđuje broj u linku (opcionalno)
-        window.location.href = `transcript.html?phone=${encodeURIComponent(telefon)}`;
-    }
+        const data = await response.json();
+        console.log('Uspjeh:', data);
 
+        let datumVrijeme = new Date().toLocaleString('hr-HR');
+        let unosi = JSON.parse(localStorage.getItem('telnyx_saved_entries')) || [];
+        unosi[index].status = 'Pozvan';
+        unosi[index].vrijeme = datumVrijeme;
+        localStorage.setItem('telnyx_saved_entries', JSON.stringify(unosi));
+
+        prikaziPodatke();
+    } catch (err) {
+        alert('Greška pri pozivanju: ' + err.message);
+        btnElement.innerText = 'Pozovi';
+        btnElement.disabled = false;
+        console.error(err);
+    }
+}
     function obrisiJedan(index) {
         let unosi = JSON.parse(localStorage.getItem('telnyx_saved_entries')) || [];
         unosi.splice(index, 1);
