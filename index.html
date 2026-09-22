@@ -680,244 +680,232 @@ XYZ COMPANY | +15557654321"></textarea>
      RENDER TABELE
      ============================================================ */
 
-  function renderTabela() {
+ function renderTabela() {
 
-    const container =
-      document.getElementById(
-        "tableContainer"
-      );
+  const container =
+    document.getElementById("tableContainer");
 
-    if (!sviPozivi.length) {
+  if (!sviPozivi.length) {
 
-      container.innerHTML =
-        `<div class="empty">
-          Nema kontakata.
-        </div>`;
+    container.innerHTML =
+      `<div class="empty">
+        Nema kontakata u TELNYX_POZIVI.
+      </div>`;
 
-      return;
+    return;
+  }
+
+
+  let html = `
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>FIRMA</th>
+
+          <th>BROJ</th>
+
+          <th>POČETAK POZIVA</th>
+
+          <th>STATUS</th>
+
+          <th>AKCIJE</th>
+
+          <th>AUDIO</th>
+
+          <th>TRAJANJE</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+  `;
+
+
+  for (const red of sviPozivi) {
+
+    const aktivan =
+      aktivniPoziv &&
+      Number(aktivniPoziv.id) ===
+      Number(red.ID);
+
+
+    const status =
+      red.STATUS || "NIJE ZVAN";
+
+
+    let statusClass = "status";
+
+
+    if (
+      statusAktivan(status) ||
+      aktivan
+    ) {
+
+      statusClass +=
+        " status-active";
+
+    }
+
+    else if (
+      statusZavrsen(status)
+    ) {
+
+      statusClass +=
+        " status-finished";
+
+    }
+
+    else if (
+      normalizujStatus(status)
+        .includes("error")
+    ) {
+
+      statusClass +=
+        " status-error";
+
+    }
+
+    else {
+
+      statusClass +=
+        " status-wait";
     }
 
 
-    let html = `
+    const audio =
+      red.AUDIO_URL || "";
 
-      <table>
 
-        <thead>
+    /*
+     * OVO JE JEDINO VRIJEME KOJE PRIKAZUJEMO
+     * KORISNIKU.
+     */
 
-          <tr>
+    const pocetakPoziva =
+      red.POCETAK_POZIVA || "";
 
-            <th>FIRMA</th>
 
-            <th>BROJ</th>
+    /*
+     * TRANSKRIPT SE NE PRIKAZUJE U TABELI.
+     * Dugme TRANSKRIPT samo otvara TRANSCRIPT.HTML.
+     */
 
-            <th>POČETAK POZIVA</th>
 
-            <th>STATUS</th>
+    html += `
 
-            <th>TRANSKRIPT</th>
+      <tr
+        class="${aktivan ? "call-active" : ""}"
+        data-id="${escapeHtml(red.ID)}">
 
-            <th>AUDIO</th>
 
-            <th>TRAJANJE</th>
+        <!-- FIRMA -->
 
-          </tr>
+        <td>
 
-        </thead>
+          <strong>
+            ${escapeHtml(red.FIRMA || "")}
+          </strong>
 
-        <tbody>
-    `;
+        </td>
 
 
-    for (
-      const red
-      of sviPozivi
-    ) {
+        <!-- BROJ -->
 
-      const aktivan =
-        aktivniPoziv &&
-        Number(aktivniPoziv.id) ===
-        Number(red.ID);
+        <td>
+          ${escapeHtml(red.BROJ || "")}
+        </td>
 
 
-      const status =
-        red.STATUS || "";
+        <!-- POČETAK POZIVA -->
 
+        <td class="start-time">
 
-      let statusClass =
-        "status";
+          ${
+            pocetakPoziva
 
+              ?
 
-      if (
-        statusAktivan(status) ||
-        aktivan
-      ) {
+              escapeHtml(
+                formatDatum(
+                  pocetakPoziva
+                )
+              )
 
-        statusClass +=
-          " status-active";
+              :
 
-      }
+              `<span class="small">
+                Nije pozvan
+              </span>`
+          }
 
-      else if (
-        statusZavrsen(status)
-      ) {
+        </td>
 
-        statusClass +=
-          " status-finished";
 
-      }
+        <!-- STATUS -->
 
-      else if (
-        normalizujStatus(status)
-          .includes("error")
-      ) {
+        <td class="${statusClass}">
 
-        statusClass +=
-          " status-error";
+          ${escapeHtml(status)}
 
-      }
+        </td>
 
-      else {
 
-        statusClass +=
-          " status-wait";
-      }
+        <!-- AKCIJE -->
 
+        <td>
 
-      const transcript =
-        red.TRANSCRIPT
-          ? String(red.TRANSCRIPT)
-          : "";
+          <div class="action-buttons">
 
 
-      const audio =
-        red.AUDIO_URL || "";
+            <!-- POZOVI PRVO -->
 
+            <button
+              class="call-button"
+              onclick="pozoviKontakt(
+                ${JSON.stringify(red.ID)},
+                ${JSON.stringify(red.BROJ)},
+                ${JSON.stringify(red.FIRMA || "")}
+              )"
+              ${aktivan ? "disabled" : ""}>
 
-      /*
-       * POČETAK POZIVA
-       *
-       * Ovo je jedino vrijeme koje prikazujemo
-       * korisniku.
-       */
+              ${
+                aktivan
+                  ? "POZIV U TOKU..."
+                  : "POZOVI"
+              }
 
-      const pocetakPoziva =
-        red.POCETAK_POZIVA || "";
+            </button>
 
 
-      html += `
+            <!-- TRANSKRIPT DRUGI -->
 
-        <tr
-          class="${aktivan ? "call-active" : ""}"
-          data-id="${escapeHtml(red.ID)}">
+            <button
+              class="transcript-button"
+              onclick="otvoriTranscript(
+                ${JSON.stringify(red.BROJ)}
+              )">
 
-          <!-- FIRMA -->
+              TRANSKRIPT
 
-          <td>
-            <strong>
-              ${escapeHtml(red.FIRMA)}
-            </strong>
-          </td>
+            </button>
 
 
-          <!-- BROJ -->
+          </div>
 
-          <td>
-            ${escapeHtml(red.BROJ)}
-          </td>
+        </td>
 
 
-          <!-- POČETAK POZIVA -->
+        <!-- AUDIO -->
 
-          <td class="start-time">
+        <td>
 
-            ${
-              pocetakPoziva
-                ? escapeHtml(
-                    formatDatum(
-                      pocetakPoziva
-                    )
-                  )
-                : '<span class="small">Nije pozvan</span>'
-            }
-
-          </td>
-
-
-          <!-- STATUS -->
-
-          <td class="${statusClass}">
-            ${escapeHtml(status || "NIJE ZVAN")}
-          </td>
-
-
-          <!-- TRANSKRIPT + POZOVI -->
-
-          <td class="transcript-cell">
-
-            <div class="action-buttons">
-
-              <!-- POZOVI JE ISPRED TRANSKRIPTA -->
-
-              <button
-                class="call-button"
-                onclick="pozoviKontakt(
-                  ${JSON.stringify(red.ID)},
-                  ${JSON.stringify(red.BROJ)},
-                  ${JSON.stringify(red.FIRMA || "")}
-                )"
-                ${aktivan ? "disabled" : ""}>
-
-                ${
-                  aktivan
-                    ? "POZIV U TOKU..."
-                    : "POZOVI"
-                }
-
-              </button>
-
-
-              <button
-                class="transcript-button"
-                onclick="otvoriTranscript(
-                  ${JSON.stringify(red.BROJ)}
-                )">
-
-                TRANSKRIPT
-
-              </button>
-
-            </div>
-
-
-            ${
-              transcript
-
-                ?
-
-                `
-                <div class="transcript-text">
-                  ${escapeHtml(transcript)}
-                </div>
-                `
-
-                :
-
-                `
-                <div class="small">
-                  Nema transkripta.
-                </div>
-                `
-            }
-
-          </td>
-
-
-          <!-- AUDIO -->
-
-          <td>
-
-            ${
-              validAudioUrl(audio)
+          ${
+            validAudioUrl(audio)
 
               ?
 
@@ -937,55 +925,56 @@ XYZ COMPANY | +15557654321"></textarea>
 
               `
               <span class="small">
-                Nema audio fajla
+                Nema fajla
               </span>
               `
-            }
+          }
 
-          </td>
+        </td>
 
 
-          <!-- TRAJANJE -->
+        <!-- TRAJANJE -->
 
-          <td>
+        <td>
 
-            ${
-              red.TRAJANJE_SEKUNDE !== null &&
-              red.TRAJANJE_SEKUNDE !== undefined
+          ${
+            red.TRAJANJE_SEKUNDE !== null &&
+            red.TRAJANJE_SEKUNDE !== undefined
 
-                ?
+              ?
 
-                escapeHtml(
-                  formatDuration(
-                    red.TRAJANJE_SEKUNDE
-                  )
+              escapeHtml(
+                formatDuration(
+                  red.TRAJANJE_SEKUNDE
                 )
+              )
 
-                :
+              :
 
-                "-"
-            }
+              "-"
+          }
 
-          </td>
-
-        </tr>
-      `;
-    }
+        </td>
 
 
-    html += `
+      </tr>
 
-        </tbody>
-
-      </table>
     `;
-
-
-    container.innerHTML =
-      html;
   }
 
 
+  html += `
+
+      </tbody>
+
+    </table>
+
+  `;
+
+
+  container.innerHTML =
+    html;
+}
   /* ============================================================
      POZIV KONTAKTA
      ============================================================ */
