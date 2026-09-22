@@ -1,1286 +1,2185 @@
+```html
 <!DOCTYPE html>
 <html lang="bs">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta charset="UTF-8">
+  <title>TELNYX POZIVI</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-    <title>TELNYX POZIVI</title>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f6f8;
+      color: #111827;
+    }
 
-    <style>
+    h1 {
+      margin: 0 0 20px 0;
+      font-size: 28px;
+    }
 
-        * {
-            box-sizing: border-box;
-        }
+    .topbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
 
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: #f5f7fa;
-            color: #222;
-        }
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+    }
 
-        .container {
-            width: 100%;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
+    .btn-blue {
+      background: #2563eb;
+      color: white;
+    }
 
-        h1 {
-            margin: 0 0 20px 0;
-            font-size: 28px;
-        }
+    .btn-green {
+      background: #16a34a;
+      color: white;
+    }
 
-        .top-bar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
+    .btn-gray {
+      background: #6b7280;
+      color: white;
+    }
 
-        button {
-            border: none;
-            border-radius: 6px;
-            padding: 10px 16px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+    .btn-dark {
+      background: #111827;
+      color: white;
+    }
 
-        button:hover {
-            opacity: 0.85;
-        }
+    .btn-red {
+      background: #dc2626;
+      color: white;
+    }
 
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
 
-        .btn-next {
-            background: #16a34a;
-            color: white;
-        }
+    .status-box {
+      background: white;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
 
-        .btn-refresh {
-            background: #64748b;
-            color: white;
-        }
+    .status-title {
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
 
-        .btn-transcript {
-            background: #7c3aed;
-            color: white;
-        }
+    .status-text {
+      color: #374151;
+    }
 
-        .btn-call {
-            background: #0891b2;
-            color: white;
-        }
+    .table-wrap {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      overflow: auto;
+    }
 
-        .status-box {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow:
-                0 1px 4px rgba(0,0,0,0.08);
-        }
+    table {
+      width: 100%;
+      min-width: 1800px;
+      border-collapse: collapse;
+    }
 
-        .status-box strong {
-            display: block;
-            margin-bottom: 5px;
-        }
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
 
-        .small {
-            font-size: 12px;
-            color: #64748b;
-        }
+    th {
+      background: #111827;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
 
-        .table-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow:
-                0 1px 4px rgba(0,0,0,0.08);
-        }
+    tr:hover td {
+      background: #f9fafb;
+    }
 
-        table {
-            width: 100%;
-            min-width: 1200px;
-            border-collapse: collapse;
-        }
+    .status {
+      font-weight: 700;
+    }
 
-        th {
-            padding: 12px;
-            background: #f1f5f9;
-            border-bottom: 1px solid #e2e8f0;
-            text-align: left;
-            font-size: 13px;
-            white-space: nowrap;
-        }
+    .status-active {
+      color: #2563eb;
+    }
 
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #e5e7eb;
-            text-align: left;
-            font-size: 13px;
-            white-space: nowrap;
-        }
+    .status-finished {
+      color: #16a34a;
+    }
 
-        tr:hover {
-            background: #f8fafc;
-        }
+    .status-error {
+      color: #dc2626;
+    }
 
-        .active-row {
-            background: #ecfdf5 !important;
-        }
+    .status-wait {
+      color: #d97706;
+    }
 
-        .empty {
-            padding: 30px;
-            text-align: center;
-            color: #64748b;
-        }
+    .transcript-cell {
+      max-width: 400px;
+      white-space: normal;
+      line-height: 1.4;
+    }
 
-        .status-active {
-            font-weight: bold;
-        }
+    .transcript-text {
+      max-height: 100px;
+      overflow: auto;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
 
-    </style>
+    .audio-cell {
+      min-width: 260px;
+    }
 
+    audio {
+      width: 250px;
+      max-width: 100%;
+    }
+
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .modal {
+      background: white;
+      width: 100%;
+      max-width: 650px;
+      border-radius: 12px;
+      padding: 22px;
+    }
+
+    .modal h2 {
+      margin-top: 0;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 250px;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      resize: vertical;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .small {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .empty {
+      padding: 30px;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    .loading {
+      padding: 30px;
+      text-align: center;
+    }
+
+    .call-active {
+      background: #eff6ff !important;
+    }
+
+    .call-button {
+      background: #16a34a;
+      color: white;
+    }
+
+    .transcript-button {
+      background: #7c3aed;
+      color: white;
+    }
+
+    .next-button {
+      background: #111827;
+      color: white;
+    }
+
+    .danger {
+      color: #dc2626;
+    }
+  </style>
 </head>
-
 
 <body>
 
-<div class="container">
+  <h1>TELNYX POZIVI</h1>
+
+  <div class="topbar">
+
+    <button
+      class="btn-blue"
+      onclick="otvoriDodajKontakte()">
+      + DODAJ KONTAKTE
+    </button>
+
+    <button
+      class="next-button"
+      onclick="sledeciPoziv()">
+      SLEDEĆI POZIV
+    </button>
+
+    <button
+      class="btn-gray"
+      onclick="ucitajPozive()">
+      OSVJEŽI
+    </button>
+
+  </div>
+
+  <div class="status-box">
+    <div class="status-title">
+      SISTEM
+    </div>
+
+    <div
+      id="systemStatus"
+      class="status-text">
+      Učitavanje...
+    </div>
+  </div>
+
+  <div class="table-wrap">
+
+    <div
+      id="tableContainer"
+      class="loading">
+      Učitavanje podataka...
+    </div>
+
+  </div>
 
 
-    <!-- =====================================================
-         NASLOV
-    ====================================================== -->
+  <!-- ========================= -->
+  <!-- MODAL DODAJ KONTAKTE -->
+  <!-- ========================= -->
 
-    <h1>
-        TELNYX POZIVI
-    </h1>
+  <div
+    id="contactModal"
+    class="modal-bg">
 
+    <div class="modal">
 
-    <!-- =====================================================
-         GORNJA DUGMAD
-    ====================================================== -->
+      <h2>DODAJ KONTAKTE</h2>
 
-    <div class="top-bar">
+      <p class="small">
+        Unesi jedan kontakt po redu:
+      </p>
+
+      <p class="small">
+        FIRMA | +15551234567
+      </p>
+
+      <textarea
+        id="contactsInput"
+        placeholder="ABC COMPANY | +15551234567
+XYZ COMPANY | +15557654321"></textarea>
+
+      <div class="modal-actions">
 
         <button
-            class="btn-primary"
-            onclick="dodajKontakt()"
-        >
-            + DODAJ KONTAKT
+          class="btn-gray"
+          onclick="zatvoriDodajKontakte()">
+          ODUSTANI
         </button>
-
 
         <button
-            class="btn-next"
-            onclick="sledeciPoziv()"
-        >
-            SLEDEĆI POZIV
+          class="btn-blue"
+          onclick="sacuvajKontakte()">
+          SAČUVAJ
         </button>
 
-
-        <button
-            class="btn-refresh"
-            onclick="ucitajPodatke()"
-        >
-            OSVJEŽI
-        </button>
+      </div>
 
     </div>
 
-
-    <!-- =====================================================
-         STATUS AKTIVNOG POZIVA
-    ====================================================== -->
-
-    <div class="status-box">
-
-        <strong id="statusNaslov">
-            STATUS: NEMA AKTIVNOG POZIVA
-        </strong>
-
-        <div
-            id="statusDetalji"
-            class="small"
-        >
-            Spremno.
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         TABELA
-    ====================================================== -->
-
-    <div class="table-wrapper">
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        ID
-                    </th>
-
-                    <th>
-                        FIRMA
-                    </th>
-
-                    <th>
-                        BROJ
-                    </th>
-
-                    <th>
-                        STATUS
-                    </th>
-
-                    <th>
-                        VRIJEME
-                    </th>
-
-                    <th>
-                        TRANSCRIPT
-                    </th>
-
-                    <th>
-                        TELNYX CALL ID
-                    </th>
-
-                    <th>
-                        CREATED AT
-                    </th>
-
-                    <th>
-                        UPDATED AT
-                    </th>
-
-                    <th>
-                        AKCIJA
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody id="tabelaPodaci">
-
-                <tr>
-
-                    <td
-                        colspan="10"
-                        class="empty"
-                    >
-                        UČITAVANJE...
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
+  </div>
 
 
 <script>
 
+  /* ============================================================
+     KONFIGURACIJA
+     ============================================================ */
 
-    /* =====================================================
-       SUPABASE PODACI
-    ====================================================== */
+  const SUPABASE_URL =
+    "https://uduwpvdjmanrgpumdrfh.supabase.co";
 
-    const SUPABASE_URL =
-        'https://uduwpvdjmanrgpumdrfh.supabase.co';
+  const SUPABASE_KEY =
+    "sb_publishable_DMELD0DRGcKD9u12lowjgw_sPBaLqhT";
 
-
-    const SUPABASE_KEY =
-        'sb_publishable_DMELD0DRGcKD9u12lowjgw_sPBaLqhT';
-
-
-    const EDGE_FUNCTION_URL =
-        SUPABASE_URL +
-        '/functions/v1/TELNYX_POZIVI';
+  const EDGE_FUNCTION_URL =
+    "https://uduwpvdjmanrgpumdrfh.supabase.co/functions/v1/TELNYX_POZIVI";
 
 
-    const TABELA =
-        'TELNYX_POZIVI';
+  const TELNYX_TABLE =
+    "TELNYX_POZIVI";
+
+  const RAZGOVORI_TABLE =
+    "RAZGOVORI_TELNYX";
 
 
-    /* =====================================================
-       VARIJABLE
-    ====================================================== */
+  /*
+    OVDJE JE NAZIV AUDIO KOLONE U RAZGOVORI_TELNYX.
 
-    let sviRedovi = [];
+    Ako je kod tebe:
+       AUDIO_URL
 
-    let aktivniIndex = -1;
+    ostavi ovako.
 
-    let aktivniCallControlId = null;
+    Ako se zove drugačije, promijeni samo ovu vrijednost.
+  */
 
-    let pollingTimer = null;
-
-
-    /* =====================================================
-       ZAVRŠENI STATUSI
-    ====================================================== */
-
-    const ZAVRSENI_STATUSI = [
-
-        'completed',
-
-        'hangup',
-
-        'hung_up',
-
-        'failed',
-
-        'busy',
-
-        'no_answer',
-
-        'no-answer',
-
-        'canceled',
-
-        'cancelled',
-
-        'error'
-
-    ];
+  const RAZGOVORI_AUDIO_COLUMN =
+    "AUDIO_URL";
 
 
-    /* =====================================================
-       ESCAPE HTML
-    ====================================================== */
+  /* ============================================================
+     STANJE APLIKACIJE
+     ============================================================ */
 
-    function escapeHtml(value) {
+  let sviPozivi = [];
 
-        if (
-            value === null ||
-            value === undefined
-        ) {
+  let aktivniPoziv = null;
 
-            return '';
+  let pollingTimer = null;
 
+  let autoRefreshTimer = null;
+
+
+  /* ============================================================
+     SUPABASE REST
+     ============================================================ */
+
+  async function supabaseFetch(
+    path,
+    options = {}
+  ) {
+
+    const response =
+      await fetch(
+        SUPABASE_URL + path,
+        {
+          ...options,
+
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Content-Type": "application/json",
+
+            ...(options.headers || {})
+          }
         }
+      );
 
+    const text =
+      await response.text();
 
-        return String(value)
+    let data = null;
 
-            .replace(
-                /&/g,
-                '&amp;'
+    try {
+      data = text
+        ? JSON.parse(text)
+        : null;
+    }
+
+    catch {
+      data = text;
+    }
+
+    if (!response.ok) {
+
+      console.error(
+        "Supabase greška:",
+        response.status,
+        data
+      );
+
+      throw new Error(
+        typeof data === "object"
+          ? (
+              data.message ||
+              data.error ||
+              JSON.stringify(data)
             )
+          : data
+      );
+    }
 
-            .replace(
-                /</g,
-                '&lt;'
-            )
+    return data;
+  }
 
-            .replace(
-                />/g,
-                '&gt;'
-            )
 
-            .replace(
-                /"/g,
-                '&quot;'
-            )
+  /* ============================================================
+     HTML ESCAPE
+     ============================================================ */
 
-            .replace(
-                /'/g,
-                '&#039;'
-            );
+  function escapeHtml(value) {
+
+    if (
+      value === null ||
+      value === undefined
+    ) {
+      return "";
+    }
+
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+
+  /* ============================================================
+     URL VALIDACIJA
+     ============================================================ */
+
+  function validAudioUrl(value) {
+
+    if (!value) {
+      return false;
+    }
+
+    try {
+
+      const url =
+        new URL(value);
+
+      return (
+        url.protocol === "https:" ||
+        url.protocol === "http:"
+      );
 
     }
 
-
-    /* =====================================================
-       TRANSCRIPT
-
-       OTVARA:
-
-       TRANSCRIPT.HTML?phone=...
-    ====================================================== */
-
-    function otvoriTranscript(broj) {
-
-        if (!broj) {
-
-            alert(
-                'BROJ TELEFONA NIJE PRONAĐEN.'
-            );
-
-            return;
-
-        }
+    catch {
+      return false;
+    }
+  }
 
 
-        window.location.href =
-            'TRANSCRIPT.HTML?phone=' +
-            encodeURIComponent(broj);
+  /* ============================================================
+     DATUM
+     ============================================================ */
 
+  function formatDatum(value) {
+
+    if (!value) {
+      return "";
     }
 
+    const d =
+      new Date(value);
 
-    /* =====================================================
-       UČITAVANJE PODATAKA IZ TELNYX_POZIVI
-    ====================================================== */
-
-    async function ucitajPodatke() {
-
-        try {
-
-            const url =
-                SUPABASE_URL +
-                '/rest/v1/' +
-                TABELA +
-                '?select=*' +
-                '&order=CREATED_AT.desc,ID.desc';
-
-
-            const response =
-                await fetch(
-                    url,
-                    {
-
-                        method: 'GET',
-
-                        headers: {
-
-                            'apikey':
-                                SUPABASE_KEY,
-
-                            'Authorization':
-                                'Bearer ' +
-                                SUPABASE_KEY,
-
-                            'Content-Type':
-                                'application/json'
-
-                        }
-
-                    }
-                );
-
-
-            if (!response.ok) {
-
-                const greska =
-                    await response.text();
-
-                throw new Error(
-                    greska
-                );
-
-            }
-
-
-            sviRedovi =
-                await response.json();
-
-
-            prikaziTabelu();
-
-
-            if (
-                aktivniIndex >= 0
-            ) {
-
-                provjeriAktivniPoziv();
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                'GREŠKA:',
-                error
-            );
-
-
-            document.getElementById(
-                'tabelaPodaci'
-            ).innerHTML = `
-
-                <tr>
-
-                    <td
-                        colspan="10"
-                        class="empty"
-                    >
-
-                        GREŠKA PRI UČITAVANJU
-                        PODATAKA.
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        }
-
+    if (isNaN(d.getTime())) {
+      return value;
     }
 
-
-    /* =====================================================
-       PRIKAZ TABELE
-    ====================================================== */
-
-    function prikaziTabelu() {
-
-        const tbody =
-            document.getElementById(
-                'tabelaPodaci'
-            );
+    return d.toLocaleString(
+      "bs-BA",
+      {
+        dateStyle: "short",
+        timeStyle: "medium"
+      }
+    );
+  }
 
 
-        if (
-            !sviRedovi ||
-            sviRedovi.length === 0
-        ) {
+  /* ============================================================
+     TRAJANJE
+     ============================================================ */
 
-            tbody.innerHTML = `
+  function formatDuration(seconds) {
 
-                <tr>
-
-                    <td
-                        colspan="10"
-                        class="empty"
-                    >
-
-                        NEMA PODATAKA.
-
-                    </td>
-
-                </tr>
-
-            `;
-
-            return;
-
-        }
-
-
-        tbody.innerHTML =
-
-            sviRedovi.map(
-
-                (red, index) => {
-
-
-                    const jeAktivan =
-                        index ===
-                        aktivniIndex;
-
-
-                    return `
-
-                        <tr
-                            class="${
-                                jeAktivan
-                                ? 'active-row'
-                                : ''
-                            }"
-                        >
-
-                            <td>
-                                ${
-                                    escapeHtml(
-                                        red.ID
-                                    )
-                                }
-                            </td>
-
-
-                            <td>
-                                ${
-                                    escapeHtml(
-                                        red.FIRMA
-                                    )
-                                }
-                            </td>
-
-
-                            <td>
-                                ${
-                                    escapeHtml(
-                                        red.BROJ
-                                    )
-                                }
-                            </td>
-
-
-                            <td
-                                class="status-active"
-                            >
-                                ${
-                                    escapeHtml(
-                                        red.STATUS
-                                    )
-                                }
-                            </td>
-
-
-                            <td>
-                                ${
-                                    escapeHtml(
-                                        red.VRIJEME
-                                    )
-                                }
-                            </td>
-
-
-                            <td>
-
-                                <button
-                                    class="btn-transcript"
-                                    onclick="otvoriTranscript(
-                                        '${escapeHtml(
-                                            red.BROJ || ''
-                                        )}'
-                                    )"
-                                >
-
-                                    TRANSCRIPT
-
-                                </button>
-
-                            </td>
-
-
-                            <td>
-                                ${
-                                    escapeHtml(
-                                        red.TELNYX_CALL_ID
-                                    )
-                                }
-                            </td>
-
-
-                            <td>
-                                ${
-                                    escapeHtml(
-                                        red.CREATED_AT
-                                    )
-                                }
-                            </td>
-
-
-                            <td>
-                                ${
-                                    escapeHtml(
-                                        red.UPDATED_AT
-                                    )
-                                }
-                            </td>
-
-
-                            <td>
-
-                                <button
-                                    class="btn-call"
-                                    onclick="pozoviBroj(
-                                        '${escapeHtml(
-                                            red.BROJ || ''
-                                        )}',
-                                        '${escapeHtml(
-                                            red.FIRMA || ''
-                                        )}'
-                                    )"
-                                >
-
-                                    POZOVI
-
-                                </button>
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-
-            ).join('');
-
+    if (
+      seconds === null ||
+      seconds === undefined ||
+      seconds === ""
+    ) {
+      return "";
     }
 
+    seconds =
+      Math.max(
+        0,
+        Math.floor(Number(seconds))
+      );
 
-    /* =====================================================
-       DODAJ KONTAKT
-    ====================================================== */
+    const hours =
+      Math.floor(seconds / 3600);
 
-    function dodajKontakt() {
+    const minutes =
+      Math.floor(
+        (seconds % 3600) / 60
+      );
 
-        const firma =
-            prompt(
-                'UNESITE NAZIV FIRME:'
-            );
+    const secs =
+      seconds % 60;
 
+    if (hours > 0) {
 
-        if (!firma) {
-
-            return;
-
-        }
-
-
-        const broj =
-            prompt(
-                'UNESITE BROJ TELEFONA:'
-            );
-
-
-        if (!broj) {
-
-            return;
-
-        }
-
-
-        const postojeci =
-            JSON.parse(
-
-                localStorage.getItem(
-                    'TELNYX_KONTAKTI'
-                ) || '[]'
-
-            );
-
-
-        postojeci.push({
-
-            firma: firma,
-
-            broj: broj
-
-        });
-
-
-        localStorage.setItem(
-
-            'TELNYX_KONTAKTI',
-
-            JSON.stringify(
-                postojeci
-            )
-
-        );
-
-
-        alert(
-            'KONTAKT JE DODAT.'
-        );
-
+      return (
+        String(hours).padStart(2, "0")
+        + ":"
+        +
+        String(minutes).padStart(2, "0")
+        + ":"
+        +
+        String(secs).padStart(2, "0")
+      );
     }
 
+    return (
+      String(minutes).padStart(2, "0")
+      + ":"
+      +
+      String(secs).padStart(2, "0")
+    );
+  }
 
-    /* =====================================================
-       POKRETANJE POZIVA
-    ====================================================== */
 
-    async function pozoviBroj(
-        broj,
-        firma
+  /* ============================================================
+     NORMALIZACIJA STATUSA
+     ============================================================ */
+
+  function normalizujStatus(status) {
+
+    if (!status) {
+      return "";
+    }
+
+    return String(status)
+      .trim()
+      .toLowerCase()
+      .replaceAll(" ", "_");
+  }
+
+
+  function statusZavrsen(status) {
+
+    const s =
+      normalizujStatus(status);
+
+    return [
+
+      "completed",
+      "complete",
+
+      "hangup",
+      "hung_up",
+
+      "failed",
+
+      "busy",
+
+      "no_answer",
+      "no-answer",
+
+      "canceled",
+      "cancelled",
+
+      "error",
+
+      "ended",
+      "finished",
+
+      "disconnected"
+
+    ].includes(s);
+  }
+
+
+  function statusAktivan(status) {
+
+    const s =
+      normalizujStatus(status);
+
+    return [
+
+      "initiated",
+      "ringing",
+      "answered",
+      "active",
+      "in_progress",
+      "in-progress",
+      "call_in_progress",
+      "poziv_u_toku"
+
+    ].includes(s);
+  }
+
+
+  /* ============================================================
+     PRONAĐI VRIJEDNOST IZ RAZGOVORI_TELNYX
+     ============================================================ */
+
+  function pronadjiVrijednost(
+    obj,
+    moguceKolone
+  ) {
+
+    if (!obj) {
+      return null;
+    }
+
+    for (
+      const kolona
+      of moguceKolone
     ) {
 
-        if (!broj) {
+      if (
+        obj[kolona] !== undefined &&
+        obj[kolona] !== null &&
+        obj[kolona] !== ""
+      ) {
 
-            alert(
-                'BROJ TELEFONA NIJE PRONAĐEN.'
-            );
+        return obj[kolona];
+      }
+    }
 
-            return;
+    return null;
+  }
 
-        }
 
+  /* ============================================================
+     UČITAJ TELNYX_POZIVI
+     ============================================================ */
 
-        try {
+  async function ucitajPozive() {
 
+    const container =
+      document.getElementById(
+        "tableContainer"
+      );
 
-            document.getElementById(
-                'statusNaslov'
-            ).textContent =
-                'STATUS: POKRETANJE POZIVA...';
+    container.innerHTML =
+      `<div class="loading">
+        Učitavanje...
+      </div>`;
 
+    try {
 
-            document.getElementById(
-                'statusDetalji'
-            ).textContent =
-                firma +
-                ' — ' +
-                broj;
+      const data =
+        await supabaseFetch(
+          `/rest/v1/${TELNYX_TABLE}?select=*&order=CREATED_AT.desc,ID.desc`
+        );
 
+      sviPozivi =
+        Array.isArray(data)
+          ? data
+          : [];
 
-            const response =
-                await fetch(
+      renderTabela();
 
-                    EDGE_FUNCTION_URL,
-
-                    {
-
-                        method: 'POST',
-
-                        headers: {
-
-                            'Content-Type':
-                                'application/json',
-
-                            'apikey':
-                                SUPABASE_KEY,
-
-                            'Authorization':
-                                'Bearer ' +
-                                SUPABASE_KEY
-
-                        },
-
-                        body:
-                            JSON.stringify({
-
-                                to_phone:
-                                    broj,
-
-                                client_name:
-                                    firma
-
-                            })
-
-                    }
-
-                );
-
-
-            const data =
-                await response.json();
-
-
-            if (!response.ok) {
-
-                throw new Error(
-
-                    data.error ||
-                    'GREŠKA PRI POKRETANJU POZIVA.'
-
-                );
-
-            }
-
-
-            /*
-               TELNYX CALL CONTROL ID
-            */
-
-            aktivniCallControlId =
-                data.call_control_id ||
-                null;
-
-
-            /*
-               Pronađi najnoviji red
-               za ovaj broj
-            */
-
-            aktivniIndex =
-                pronadjiNajnovijiRedZaBroj(
-                    broj
-                );
-
-
-            document.getElementById(
-                'statusNaslov'
-            ).textContent =
-                'STATUS: POZIV AKTIVAN';
-
-
-            document.getElementById(
-                'statusDetalji'
-            ).textContent =
-                firma +
-                ' — ' +
-                broj;
-
-
-            prikaziTabelu();
-
-
-            /*
-               Počni provjeravati status
-            */
-
-            pokreniPolling();
-
-
-            /*
-               Odmah osvježi podatke
-            */
-
-            setTimeout(
-
-                () => {
-
-                    ucitajPodatke();
-
-                },
-
-                1000
-
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-
-
-            document.getElementById(
-                'statusNaslov'
-            ).textContent =
-                'STATUS: GREŠKA';
-
-
-            document.getElementById(
-                'statusDetalji'
-            ).textContent =
-                error.message;
-
-
-            alert(
-                error.message
-            );
-
-        }
+      document
+        .getElementById("systemStatus")
+        .textContent =
+          `Učitano ${sviPozivi.length} kontakata.`;
 
     }
 
+    catch (error) {
 
-    /* =====================================================
-       PRONAĐI NAJNOVIJI RED ZA BROJ
-    ====================================================== */
+      console.error(error);
 
-    function pronadjiNajnovijiRedZaBroj(
+      container.innerHTML =
+        `<div class="empty danger">
+          Greška pri učitavanju:
+          ${escapeHtml(error.message)}
+        </div>`;
+
+      document
+        .getElementById("systemStatus")
+        .textContent =
+          "Greška pri komunikaciji sa bazom.";
+    }
+  }
+
+
+  /* ============================================================
+     RENDER TABELE
+     ============================================================ */
+
+  function renderTabela() {
+
+    const container =
+      document.getElementById(
+        "tableContainer"
+      );
+
+    if (!sviPozivi.length) {
+
+      container.innerHTML =
+        `<div class="empty">
+          Nema kontakata u TELNYX_POZIVI.
+        </div>`;
+
+      return;
+    }
+
+
+    let html = `
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>ID</th>
+
+            <th>FIRMA</th>
+
+            <th>BROJ</th>
+
+            <th>STATUS</th>
+
+            <th>VRIJEME</th>
+
+            <th>TRANSCRIPT</th>
+
+            <th>AUDIO</th>
+
+            <th>TELNYX CALL ID</th>
+
+            <th>RAZGOVORI ID</th>
+
+            <th>POČETAK POZIVA</th>
+
+            <th>KRAJ POZIVA</th>
+
+            <th>TRAJANJE</th>
+
+            <th>CREATED AT</th>
+
+            <th>UPDATED AT</th>
+
+            <th>AKCIJA</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+    `;
+
+
+    for (
+      const red
+      of sviPozivi
+    ) {
+
+      const aktivan =
+        aktivniPoziv &&
+        Number(aktivanPoziv.id) ===
+        Number(red.ID);
+
+
+      const status =
+        red.STATUS || "";
+
+
+      let statusClass =
+        "status";
+
+
+      if (
+        statusAktivan(status) ||
+        aktivan
+      ) {
+
+        statusClass +=
+          " status-active";
+
+      }
+
+      else if (
+        statusZavrsen(status)
+      ) {
+
+        statusClass +=
+          " status-finished";
+
+      }
+
+      else if (
+        normalizujStatus(status)
+          .includes("error")
+      ) {
+
+        statusClass +=
+          " status-error";
+
+      }
+
+      else {
+
+        statusClass +=
+          " status-wait";
+      }
+
+
+      const transcript =
+        red.TRANSCRIPT
+          ? String(red.TRANSCRIPT)
+          : "";
+
+
+      const audio =
+        red.AUDIO_URL || "";
+
+
+      html += `
+
+        <tr
+          class="${aktivan ? "call-active" : ""}"
+          data-id="${escapeHtml(red.ID)}">
+
+          <td>
+            ${escapeHtml(red.ID)}
+          </td>
+
+          <td>
+            ${escapeHtml(red.FIRMA)}
+          </td>
+
+          <td>
+            ${escapeHtml(red.BROJ)}
+          </td>
+
+          <td class="${statusClass}">
+            ${escapeHtml(status)}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              formatDatum(red.VRIJEME)
+            )}
+          </td>
+
+          <td class="transcript-cell">
+
+            <div class="transcript-text">
+
+              ${
+                transcript
+                  ? escapeHtml(
+                      transcript.toUpperCase()
+                    )
+                  : "-"
+              }
+
+            </div>
+
+            <br>
+
+            <button
+              class="transcript-button"
+              onclick="otvoriTranscript('${escapeHtml(red.BROJ)}')">
+
+              TRANSCRIPT
+
+            </button>
+
+          </td>
+
+          <td class="audio-cell">
+
+            ${
+              validAudioUrl(audio)
+
+              ?
+
+              `
+              <audio
+                controls
+                preload="none"
+                src="${escapeHtml(audio)}">
+              </audio>
+              `
+
+              :
+
+              `<span class="small">
+                Nema audio fajla
+              </span>`
+            }
+
+          </td>
+
+          <td>
+            ${escapeHtml(
+              red.TELNYX_CALL_ID || ""
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              red.RAZGOVORI_ID || ""
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              formatDatum(
+                red.POCETAK_POZIVA
+              )
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              formatDatum(
+                red.KRAJ_POZIVA
+              )
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              formatDuration(
+                red.TRAJANJE_SEKUNDE
+              )
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              formatDatum(
+                red.CREATED_AT
+              )
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              formatDatum(
+                red.UPDATED_AT
+              )
+            )}
+          </td>
+
+          <td>
+
+            <button
+              class="call-button"
+              onclick="pozoviKontakt(
+                ${JSON.stringify(red.ID)},
+                ${JSON.stringify(red.BROJ)},
+                ${JSON.stringify(red.FIRMA || "")}
+              )"
+              ${aktivan ? "disabled" : ""}>
+
+              ${
+                aktivan
+                  ? "POZIV U TOKU..."
+                  : "POZOVI"
+              }
+
+            </button>
+
+          </td>
+
+        </tr>
+      `;
+    }
+
+
+    html += `
+
+        </tbody>
+
+      </table>
+    `;
+
+
+    container.innerHTML =
+      html;
+  }
+
+
+  /* ============================================================
+     POZIV KONTAKTA
+     ============================================================ */
+
+  async function pozoviKontakt(
+    redId,
+    broj,
+    firma
+  ) {
+
+    if (!broj) {
+
+      alert(
+        "Kontakt nema broj telefona."
+      );
+
+      return;
+    }
+
+
+    if (aktivniPoziv) {
+
+      alert(
+        "Već postoji aktivan poziv."
+      );
+
+      return;
+    }
+
+
+    const potvrda =
+      confirm(
+        `Pozvati ${firma || broj}?\n\n${broj}`
+      );
+
+    if (!potvrda) {
+      return;
+    }
+
+
+    const start =
+      new Date();
+
+
+    aktivniPoziv = {
+
+      id: redId,
+
+      broj: broj,
+
+      firma: firma,
+
+      start: start
+
+    };
+
+
+    renderTabela();
+
+
+    document
+      .getElementById(
+        "systemStatus"
+      )
+      .textContent =
+        `Poziv prema ${broj} je u toku...`;
+
+
+    try {
+
+      /*
+        1. Prvo zapišemo početak poziva
+      */
+
+      await updatePoziv(
+        redId,
+        {
+
+          POCETAK_POZIVA:
+            start.toISOString(),
+
+          KRAJ_POZIVA:
+            null,
+
+          TRAJANJE_SEKUNDE:
+            null,
+
+          STATUS:
+            "POZIV U TOKU",
+
+          VRIJEME:
+            start.toISOString(),
+
+          UPDATED_AT:
+            new Date().toISOString()
+
+        }
+      );
+
+
+      /*
+        2. Pozivamo postojeću Edge Function
+      */
+
+      const response =
+        await fetch(
+          EDGE_FUNCTION_URL,
+          {
+
+            method: "POST",
+
+            headers: {
+
+              "Content-Type":
+                "application/json",
+
+              "apikey":
+                SUPABASE_KEY
+
+            },
+
+            body: JSON.stringify({
+
+              to_phone:
+                broj,
+
+              client_name:
+                firma
+
+            })
+
+          }
+        );
+
+
+      const result =
+        await response.json();
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          result.error ||
+          result.message ||
+          "Edge Function greška."
+        );
+      }
+
+
+      /*
+        3. Sačuvaj Telnyx Call ID
+      */
+
+      if (
+        result.call_control_id
+      ) {
+
+        await updatePoziv(
+          redId,
+          {
+
+            TELNYX_CALL_ID:
+              result.call_control_id,
+
+            UPDATED_AT:
+              new Date().toISOString()
+
+          }
+        );
+      }
+
+
+      /*
+        4. Pokušaj odmah pronaći
+           RAZGOVORI_TELNYX
+      */
+
+      await sinhronizujRazgovor(
+        redId,
         broj
-    ) {
-
-        for (
-            let i = 0;
-            i < sviRedovi.length;
-            i++
-        ) {
-
-            if (
-
-                String(
-                    sviRedovi[i].BROJ
-                ) ===
-
-                String(
-                    broj
-                )
-
-            ) {
-
-                return i;
-
-            }
-
-        }
+      );
 
 
-        return -1;
+      /*
+        5. Pokreni polling
+      */
+
+      pokreniPolling(
+        redId,
+        broj
+      );
+
+
+      /*
+        6. Odmah osvježi
+      */
+
+      await ucitajPozive();
 
     }
 
+    catch (error) {
 
-    /* =====================================================
-       POLLING
-    ====================================================== */
-
-    function pokreniPolling() {
-
-        zaustaviPolling();
+      console.error(
+        "Greška pri pozivu:",
+        error
+      );
 
 
-        pollingTimer =
+      await updatePoziv(
+        redId,
+        {
 
-            setInterval(
+          STATUS:
+            "GREŠKA",
 
-                async () => {
+          KRAJ_POZIVA:
+            new Date().toISOString(),
 
-                    await ucitajPodatke();
+          UPDATED_AT:
+            new Date().toISOString()
 
-                },
+        }
+      );
 
-                5000
 
-            );
+      aktivniPoziv = null;
 
+      zaustaviPolling();
+
+      await ucitajPozive();
+
+
+      alert(
+        "Poziv nije pokrenut:\n\n"
+        + error.message
+      );
     }
+  }
 
 
-    /* =====================================================
-       ZAUSTAVI POLLING
-    ====================================================== */
+  /* ============================================================
+     UPDATE TELNYX_POZIVI
+     ============================================================ */
 
-    function zaustaviPolling() {
+  async function updatePoziv(
+    redId,
+    values
+  ) {
 
-        if (
-            pollingTimer
-        ) {
+    return await supabaseFetch(
 
-            clearInterval(
-                pollingTimer
-            );
+      `/rest/v1/${TELNYX_TABLE}?ID=eq.${encodeURIComponent(redId)}`,
 
-            pollingTimer = null;
+      {
 
-        }
+        method: "PATCH",
 
-    }
+        body:
+          JSON.stringify(values)
 
-
-    /* =====================================================
-       PROVJERA STATUSA AKTIVNOG POZIVA
-    ====================================================== */
-
-    function provjeriAktivniPoziv() {
-
-        if (
-            aktivniIndex < 0
-        ) {
-
-            return;
-
-        }
-
-
-        let aktivniRed =
-            null;
-
-
-        /*
-           Prvo tražimo po
-           TELNYX CALL ID
-        */
-
-        if (
-            aktivniCallControlId
-        ) {
-
-            aktivniRed =
-                sviRedovi.find(
-
-                    red =>
-
-                        String(
-                            red.TELNYX_CALL_ID ||
-                            ''
-                        ) ===
-
-                        String(
-                            aktivniCallControlId
-                        )
-
-                );
-
-        }
-
-
-        /*
-           Ako nema CALL ID-a,
-           tražimo po broju.
-        */
-
-        if (
-            !aktivniRed
-        ) {
-
-            const stariRed =
-                sviRedovi[
-                    aktivniIndex
-                ];
-
-
-            if (
-                stariRed
-            ) {
-
-                aktivniRed =
-                    sviRedovi.find(
-
-                        red =>
-
-                            String(
-                                red.BROJ ||
-                                ''
-                            ) ===
-
-                            String(
-                                stariRed.BROJ ||
-                                ''
-                            )
-
-                    );
-
-            }
-
-        }
-
-
-        if (
-            !aktivniRed
-        ) {
-
-            return;
-
-        }
-
-
-        const status =
-            String(
-                aktivniRed.STATUS ||
-                ''
-            ).toLowerCase();
-
-
-        document.getElementById(
-            'statusNaslov'
-        ).textContent =
-
-            'STATUS: ' +
-
-            String(
-                aktivniRed.STATUS ||
-                'NEPOZNATO'
-            ).toUpperCase();
-
-
-        document.getElementById(
-            'statusDetalji'
-        ).textContent =
-
-            (
-                aktivniRed.FIRMA ||
-                ''
-            ) +
-
-            ' — ' +
-
-            (
-                aktivniRed.BROJ ||
-                ''
-            );
-
-
-        /*
-           Ako je poziv završen,
-           zaustavi polling.
-        */
-
-        if (
-
-            ZAVRSENI_STATUSI.includes(
-                status
-            )
-
-        ) {
-
-            zaustaviPolling();
-
-        }
-
-    }
-
-
-    /* =====================================================
-       SLEDEĆI POZIV
-
-       VAŽNO:
-       OVDJE SE NIŠTA NE BRIŠE.
-
-       Prethodni zapis ostaje
-       u TELNYX_POZIVI.
-    ====================================================== */
-
-    function sledeciPoziv() {
-
-        zaustaviPolling();
-
-
-        aktivniIndex = -1;
-
-        aktivniCallControlId = null;
-
-
-        document.getElementById(
-            'statusNaslov'
-        ).textContent =
-            'STATUS: NEMA AKTIVNOG POZIVA';
-
-
-        document.getElementById(
-            'statusDetalji'
-        ).textContent =
-            'SPREMNO ZA SLEDEĆI POZIV.';
-
-
-        prikaziTabelu();
-
-    }
-
-
-    /* =====================================================
-       POČETNO UČITAVANJE
-    ====================================================== */
-
-    ucitajPodatke();
-
-
-    /* =====================================================
-       AUTOMATSKO OSVJEŽAVANJE
-       
-       Svakih 5 sekundi učitava
-       najnovije podatke.
-    ====================================================== */
-
-    setInterval(
-
-        () => {
-
-            ucitajPodatke();
-
-        },
-
-        5000
+      }
 
     );
+  }
 
+
+  /* ============================================================
+     PRONAĐI NAJNOVIJI RAZGOVOR
+     ============================================================ */
+
+  async function pronadjiRazgovor(
+    broj
+  ) {
+
+    if (!broj) {
+      return null;
+    }
+
+
+    const url =
+
+      `/rest/v1/${RAZGOVORI_TABLE}`
+
+      +
+
+      `?select=*`
+
+      +
+
+      `&BROJ=eq.${encodeURIComponent(broj)}`
+
+      +
+
+      `&order=ID.desc`
+
+      +
+
+      `&limit=1`;
+
+
+    const data =
+      await supabaseFetch(url);
+
+
+    if (
+      !Array.isArray(data) ||
+      !data.length
+    ) {
+
+      return null;
+    }
+
+
+    return data[0];
+  }
+
+
+  /* ============================================================
+     SINHRONIZACIJA RAZGOVORI_TELNYX
+     ============================================================ */
+
+  async function sinhronizujRazgovor(
+    redId,
+    broj
+  ) {
+
+    try {
+
+      const razgovor =
+        await pronadjiRazgovor(
+          broj
+        );
+
+
+      if (!razgovor) {
+
+        return null;
+      }
+
+
+      /*
+        ID razgovora
+      */
+
+      const razgovoriId =
+        pronadjiVrijednost(
+          razgovor,
+          [
+            "ID",
+            "id"
+          ]
+        );
+
+
+      /*
+        STATUS
+      */
+
+      const status =
+        pronadjiVrijednost(
+          razgovor,
+          [
+            "STATUS",
+            "status",
+            "CALL_STATUS",
+            "call_status"
+          ]
+        );
+
+
+      /*
+        TRANSCRIPT
+      */
+
+      const transcript =
+        pronadjiVrijednost(
+          razgovor,
+          [
+            "TRANSCRIPT",
+            "transcript"
+          ]
+        );
+
+
+      /*
+        AUDIO
+      */
+
+      const audioUrl =
+        pronadjiVrijednost(
+          razgovor,
+          [
+
+            RAZGOVORI_AUDIO_COLUMN,
+
+            "AUDIO_URL",
+            "audio_url",
+
+            "AUDIO",
+            "audio",
+
+            "RECORDING_URL",
+            "recording_url",
+
+            "RECORDING",
+            "recording"
+
+          ]
+        );
+
+
+      /*
+        VRIJEME razgovora
+      */
+
+      const vrijeme =
+        pronadjiVrijednost(
+          razgovor,
+          [
+            "VRIJEME",
+            "vrijeme",
+            "CREATED_AT",
+            "created_at"
+          ]
+        );
+
+
+      const updateData = {};
+
+
+      if (
+        razgovoriId !== null
+      ) {
+
+        updateData.RAZGOVORI_ID =
+          Number(razgovoriId);
+      }
+
+
+      if (
+        status !== null
+      ) {
+
+        updateData.STATUS =
+          String(status);
+      }
+
+
+      if (
+        transcript !== null
+      ) {
+
+        updateData.TRANSCRIPT =
+          String(transcript)
+            .toUpperCase();
+      }
+
+
+      if (
+        audioUrl !== null
+      ) {
+
+        updateData.AUDIO_URL =
+          String(audioUrl);
+      }
+
+
+      if (
+        vrijeme !== null
+      ) {
+
+        updateData.VRIJEME =
+          vrijeme;
+      }
+
+
+      updateData.UPDATED_AT =
+        new Date().toISOString();
+
+
+      if (
+        Object.keys(updateData).length > 0
+      ) {
+
+        await updatePoziv(
+          redId,
+          updateData
+        );
+      }
+
+
+      /*
+        Ako je razgovor završen,
+        izračunaj trajanje.
+      */
+
+      if (
+        statusZavrsen(status)
+      ) {
+
+        await zavrsiPoziv(
+          redId
+        );
+
+        return {
+          ...razgovor,
+          __finished: true
+        };
+      }
+
+
+      return razgovor;
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Greška sinhronizacije:",
+        error
+      );
+
+      return null;
+    }
+  }
+
+
+  /* ============================================================
+     POLLING
+     ============================================================ */
+
+  function pokreniPolling(
+    redId,
+    broj
+  ) {
+
+    zaustaviPolling();
+
+
+    pollingTimer =
+      setInterval(
+        async () => {
+
+          await provjeriPoziv(
+            redId,
+            broj
+          );
+
+        },
+        5000
+      );
+
+
+    /*
+      Prva provjera odmah
+    */
+
+    provjeriPoziv(
+      redId,
+      broj
+    );
+  }
+
+
+  function zaustaviPolling() {
+
+    if (
+      pollingTimer
+    ) {
+
+      clearInterval(
+        pollingTimer
+      );
+
+      pollingTimer = null;
+    }
+  }
+
+
+  /* ============================================================
+     PROVJERI POZIV
+     ============================================================ */
+
+  async function provjeriPoziv(
+    redId,
+    broj
+  ) {
+
+    try {
+
+      /*
+        1. Uzmi najnoviji RAZGOVORI_TELNYX
+      */
+
+      const razgovor =
+        await sinhronizujRazgovor(
+          redId,
+          broj
+        );
+
+
+      /*
+        2. Provjeri da li je završen
+      */
+
+      if (
+        razgovor &&
+        razgovor.__finished
+      ) {
+
+        return;
+      }
+
+
+      /*
+        3. Ako nema razgovora,
+           provjeri sam TELNYX_POZIVI
+      */
+
+      const red =
+        await ucitajJedanPoziv(
+          redId
+        );
+
+
+      if (!red) {
+        return;
+      }
+
+
+      /*
+        Ako je status završen
+        i imamo početak,
+        izračunaj kraj.
+      */
+
+      if (
+        statusZavrsen(
+          red.STATUS
+        )
+      ) {
+
+        await zavrsiPoziv(
+          redId
+        );
+
+        return;
+      }
+
+
+      renderTabela();
+
+
+      document
+        .getElementById(
+          "systemStatus"
+        )
+        .textContent =
+          `Poziv ${broj} je u toku...`;
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Polling greška:",
+        error
+      );
+    }
+  }
+
+
+  /* ============================================================
+     UČITAJ JEDAN RED
+     ============================================================ */
+
+  async function ucitajJedanPoziv(
+    redId
+  ) {
+
+    const data =
+      await supabaseFetch(
+
+        `/rest/v1/${TELNYX_TABLE}?select=*&ID=eq.${encodeURIComponent(redId)}&limit=1`
+
+      );
+
+
+    if (
+      !Array.isArray(data) ||
+      !data.length
+    ) {
+
+      return null;
+    }
+
+
+    return data[0];
+  }
+
+
+  /* ============================================================
+     ZAVRŠI POZIV
+     ============================================================ */
+
+  async function zavrsiPoziv(
+    redId
+  ) {
+
+    try {
+
+      const red =
+        await ucitajJedanPoziv(
+          redId
+        );
+
+
+      if (!red) {
+        return;
+      }
+
+
+      let start =
+        red.POCETAK_POZIVA;
+
+
+      /*
+        Ako nema start u bazi,
+        pokušaj iz aktivnog poziva.
+      */
+
+      if (
+        !start &&
+        aktivniPoziv &&
+        Number(aktivniPoziv.id) ===
+        Number(redId)
+      ) {
+
+        start =
+          aktivniPoziv.start;
+      }
+
+
+      const kraj =
+        new Date();
+
+
+      let trajanje =
+        null;
+
+
+      if (start) {
+
+        const startDate =
+          new Date(start);
+
+
+        if (
+          !isNaN(
+            startDate.getTime()
+          )
+        ) {
+
+          trajanje =
+            Math.max(
+              0,
+              Math.round(
+                (
+                  kraj.getTime()
+                  -
+                  startDate.getTime()
+                ) / 1000
+              )
+            );
+        }
+      }
+
+
+      await updatePoziv(
+        redId,
+        {
+
+          KRAJ_POZIVA:
+            kraj.toISOString(),
+
+          TRAJANJE_SEKUNDE:
+            trajanje,
+
+          UPDATED_AT:
+            kraj.toISOString()
+
+        }
+      );
+
+
+      zaustaviPolling();
+
+
+      aktivniPoziv = null;
+
+
+      document
+        .getElementById(
+          "systemStatus"
+        )
+        .textContent =
+          trajanje !== null
+
+            ?
+
+            `Poziv završen. Trajanje: ${formatDuration(trajanje)}`
+
+            :
+
+            "Poziv završen.";
+
+
+      await ucitajPozive();
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Greška završetka poziva:",
+        error
+      );
+    }
+  }
+
+
+  /* ============================================================
+     SLEDEĆI POZIV
+     ============================================================ */
+
+  async function sledeciPoziv() {
+
+    /*
+      NE BRIŠE NIŠTA.
+
+      Samo prekida lokalno praćenje
+      trenutnog poziva i osvježava tabelu.
+    */
+
+    zaustaviPolling();
+
+    aktivniPoziv = null;
+
+    await ucitajPozive();
+
+
+    document
+      .getElementById(
+        "systemStatus"
+      )
+      .textContent =
+        "Spreman za sljedeći poziv.";
+  }
+
+
+  /* ============================================================
+     TRANSCRIPT
+     ============================================================ */
+
+  function otvoriTranscript(
+    broj
+  ) {
+
+    if (!broj) {
+
+      alert(
+        "Broj telefona nije pronađen."
+      );
+
+      return;
+    }
+
+
+    window.open(
+
+      "TRANSCRIPT.HTML?phone="
+      +
+      encodeURIComponent(broj),
+
+      "_blank"
+
+    );
+  }
+
+
+  /* ============================================================
+     MODAL
+     ============================================================ */
+
+  function otvoriDodajKontakte() {
+
+    document
+      .getElementById(
+        "contactModal"
+      )
+      .style.display =
+        "flex";
+  }
+
+
+  function zatvoriDodajKontakte() {
+
+    document
+      .getElementById(
+        "contactModal"
+      )
+      .style.display =
+        "none";
+  }
+
+
+  /* ============================================================
+     DODAJ VIŠE KONTAKATA
+     ============================================================ */
+
+  async function sacuvajKontakte() {
+
+    const input =
+      document
+        .getElementById(
+          "contactsInput"
+        );
+
+
+    const text =
+      input.value.trim();
+
+
+    if (!text) {
+
+      alert(
+        "Unesi barem jedan kontakt."
+      );
+
+      return;
+    }
+
+
+    const lines =
+      text
+        .split(/\r?\n/)
+        .map(x => x.trim())
+        .filter(Boolean);
+
+
+    const kontakti = [];
+
+
+    for (
+      const line
+      of lines
+    ) {
+
+      /*
+        Podržava:
+
+        FIRMA | BROJ
+
+        ili
+
+        FIRMA,BROJ
+      */
+
+      let parts =
+        line.includes("|")
+          ? line.split("|")
+          : line.split(",");
+
+
+      if (
+        parts.length < 2
+      ) {
+
+        continue;
+      }
+
+
+      const firma =
+        parts[0].trim();
+
+
+      const broj =
+        parts
+          .slice(1)
+          .join(",")
+          .trim();
+
+
+      if (!broj) {
+        continue;
+      }
+
+
+      kontakti.push({
+
+        FIRMA:
+          firma || "NEPOZNATO",
+
+        BROJ:
+          broj,
+
+        STATUS:
+          "NIJE ZVAN",
+
+        CREATED_AT:
+          new Date().toISOString(),
+
+        UPDATED_AT:
+          new Date().toISOString()
+
+      });
+    }
+
+
+    if (!kontakti.length) {
+
+      alert(
+        "Nisam pronašao ispravan format.\n\nKoristi:\nFIRMA | +15551234567"
+      );
+
+      return;
+    }
+
+
+    try {
+
+      await supabaseFetch(
+
+        `/rest/v1/${TELNYX_TABLE}`,
+
+        {
+
+          method: "POST",
+
+          body:
+            JSON.stringify(
+              kontakti
+            )
+
+        }
+
+      );
+
+
+      input.value = "";
+
+
+      zatvoriDodajKontakte();
+
+
+      await ucitajPozive();
+
+
+      alert(
+        `Dodano kontakata: ${kontakti.length}`
+      );
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Greška pri dodavanju kontakata:\n\n"
+        +
+        error.message
+      );
+    }
+  }
+
+
+  /* ============================================================
+     AUTOMATSKO OSVJEŽAVANJE
+     ============================================================ */
+
+  function pokreniAutoRefresh() {
+
+    if (
+      autoRefreshTimer
+    ) {
+
+      clearInterval(
+        autoRefreshTimer
+      );
+    }
+
+
+    autoRefreshTimer =
+      setInterval(
+        async () => {
+
+          /*
+            Dok traje aktivni poziv,
+            polling vodi računa o njemu.
+          */
+
+          if (
+            aktivniPoziv
+          ) {
+
+            return;
+          }
+
+
+          await ucitajPozive();
+
+        },
+        5000
+      );
+  }
+
+
+  /* ============================================================
+     INIT
+     ============================================================ */
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+      await ucitajPozive();
+
+      pokreniAutoRefresh();
+
+    }
+  );
 
 </script>
 
 </body>
-
 </html>
+```
