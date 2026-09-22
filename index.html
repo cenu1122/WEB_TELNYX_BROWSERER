@@ -348,7 +348,7 @@ XYZ COMPANY | +15557654321"></textarea>
     "https://lvvidixbdtdjfwxxxqzr.supabase.co";
 
   const SUPABASE_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2dmlkaXhiZHRkamZ3eHh4cXpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NjgzMjgsImV4cCI6MjA5MTE0NDMyOH0.HE3-5jMrxZ7suTR0lebcfZB-9WqslwExarGoxDYMA_s";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2dmlkaXhiZHRkamZ3eHx4cXpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NjgzMjgsImV4cCI6MjA5MTE0NDMyOH0.HE3-5jMrxZ7suTR0lebcfZB-9WqslwExarGoxDYMA_s";
 
   const EDGE_FUNCTION_URL =
     "https://lvvidixbdtdjfwxxxqzr.supabase.co/functions/v1/TELNYX_POZIVI";
@@ -845,7 +845,6 @@ XYZ COMPANY | +15557654321"></textarea>
       const audio =
         red.AUDIO_URL || "";
 
-      // Sigurno pakovanje podataka za dugme da ne puca sintaksa
       const safeId = escapeHtml(red.ID);
       const safeBroj = escapeHtml(red.BROJ);
       const safeFirma = escapeHtml(red.FIRMA || "");
@@ -1078,11 +1077,9 @@ XYZ COMPANY | +15557654321"></textarea>
 
             body: JSON.stringify({
 
-              to_phone:
-                broj,
-
-              client_name:
-                firma
+              to_phone: broj,
+              phone_number: broj,
+              client_name: firma
 
             })
 
