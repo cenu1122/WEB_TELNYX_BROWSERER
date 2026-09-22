@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>TELNYX POZIVI</title>
 
   <style>
@@ -40,13 +39,13 @@
       font-size: 14px;
     }
 
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
     .btn-blue {
       background: #2563eb;
+      color: white;
+    }
+
+    .btn-green {
+      background: #16a34a;
       color: white;
     }
 
@@ -58,6 +57,16 @@
     .btn-dark {
       background: #111827;
       color: white;
+    }
+
+    .btn-red {
+      background: #dc2626;
+      color: white;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
     }
 
     .status-box {
@@ -130,12 +139,8 @@
       color: #d97706;
     }
 
-    .call-active td {
-      background: #eff6ff !important;
-    }
-
     .transcript-cell {
-      max-width: 500px;
+      max-width: 400px;
       white-space: normal;
       line-height: 1.4;
     }
@@ -143,26 +148,9 @@
     .transcript-text {
       max-height: 100px;
       overflow: auto;
+      text-transform: uppercase;
       font-size: 13px;
-      margin-top: 10px;
-      color: #374151;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .call-button {
-      background: #16a34a;
-      color: white;
-    }
-
-    .transcript-button {
-      background: #7c3aed;
-      color: white;
+      margin-bottom: 8px;
     }
 
     .audio-link {
@@ -170,31 +158,6 @@
       text-decoration: underline;
       font-weight: bold;
       font-size: 13px;
-    }
-
-    .small {
-      font-size: 12px;
-      color: #6b7280;
-    }
-
-    .empty {
-      padding: 30px;
-      text-align: center;
-      color: #6b7280;
-    }
-
-    .loading {
-      padding: 30px;
-      text-align: center;
-    }
-
-    .danger {
-      color: #dc2626;
-    }
-
-    .start-time {
-      font-weight: 600;
-      color: #111827;
     }
 
     .modal-bg {
@@ -237,6 +200,46 @@
       gap: 10px;
       margin-top: 15px;
     }
+
+    .small {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .empty {
+      padding: 30px;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    .loading {
+      padding: 30px;
+      text-align: center;
+    }
+
+    .call-active {
+      background: #eff6ff !important;
+    }
+
+    .call-button {
+      background: #16a34a;
+      color: white;
+      margin-right: 6px;
+    }
+
+    .transcript-button {
+      background: #7c3aed;
+      color: white;
+    }
+
+    .next-button {
+      background: #111827;
+      color: white;
+    }
+
+    .danger {
+      color: #dc2626;
+    }
   </style>
 </head>
 
@@ -253,7 +256,7 @@
     </button>
 
     <button
-      class="btn-dark"
+      class="next-button"
       onclick="sledeciPoziv()">
       SLEDEĆI POZIV
     </button>
@@ -266,9 +269,7 @@
 
   </div>
 
-
   <div class="status-box">
-
     <div class="status-title">
       SISTEM
     </div>
@@ -278,9 +279,7 @@
       class="status-text">
       Učitavanje...
     </div>
-
   </div>
-
 
   <div class="table-wrap">
 
@@ -349,16 +348,18 @@ XYZ COMPANY | +15557654321"></textarea>
     "https://lvvidixbdtdjfwxxxqzr.supabase.co";
 
   const SUPABASE_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2dmlkaXhiZHRkamZ3eHh4cXpyIiwiaWF0IjoxNzc1NTY4MzI4LCJleHAiOjIwOTExNDQzMjh9.HE3-5jMrxZ7suTR0lebcfZB-9WqslwExarGoxDYMA_s";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2dmlkaXhiZHRkamZ3eHh4cXpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NjgzMjgsImV4cCI6MjA5MTE0NDMyOH0.HE3-5jMrxZ7suTR0lebcfZB-9WqslwExarGoxDYMA_s";
 
   const EDGE_FUNCTION_URL =
     "https://lvvidixbdtdjfwxxxqzr.supabase.co/functions/v1/telnyx_špopozivic";
+
 
   const TELNYX_TABLE =
     "TELNYX_POZIVI";
 
   const RAZGOVORI_TABLE =
     "RAZGOVORI_TELNYX";
+
 
   const RAZGOVORI_AUDIO_COLUMN =
     "AUDIO_URL";
@@ -381,28 +382,36 @@ XYZ COMPANY | +15557654321"></textarea>
      SUPABASE REST
      ============================================================ */
 
-  async function supabaseFetch(path, options = {}) {
+  async function supabaseFetch(
+    path,
+    options = {}
+  ) {
 
-    const response = await fetch(
-      SUPABASE_URL + path,
-      {
-        ...options,
+    const response =
+      await fetch(
+        SUPABASE_URL + path,
+        {
+          ...options,
 
-        headers: {
-          "apikey": SUPABASE_KEY,
-          "Authorization": "Bearer " + SUPABASE_KEY,
-          "Content-Type": "application/json",
-          ...(options.headers || {})
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": "Bearer " + SUPABASE_KEY,
+            "Content-Type": "application/json",
+
+            ...(options.headers || {})
+          }
         }
-      }
-    );
+      );
 
-    const text = await response.text();
+    const text =
+      await response.text();
 
     let data = null;
 
     try {
-      data = text ? JSON.parse(text) : null;
+      data = text
+        ? JSON.parse(text)
+        : null;
     }
 
     catch {
@@ -455,7 +464,7 @@ XYZ COMPANY | +15557654321"></textarea>
 
 
   /* ============================================================
-     AUDIO URL
+     URL VALIDACIJA
      ============================================================ */
 
   function validAudioUrl(value) {
@@ -466,7 +475,8 @@ XYZ COMPANY | +15557654321"></textarea>
 
     try {
 
-      const url = new URL(value);
+      const url =
+        new URL(value);
 
       return (
         url.protocol === "https:" ||
@@ -491,7 +501,8 @@ XYZ COMPANY | +15557654321"></textarea>
       return "";
     }
 
-    const d = new Date(value);
+    const d =
+      new Date(value);
 
     if (isNaN(d.getTime())) {
       return value;
@@ -521,10 +532,11 @@ XYZ COMPANY | +15557654321"></textarea>
       return "";
     }
 
-    seconds = Math.max(
-      0,
-      Math.floor(Number(seconds))
-    );
+    seconds =
+      Math.max(
+        0,
+        Math.floor(Number(seconds))
+      );
 
     const hours =
       Math.floor(seconds / 3600);
@@ -560,7 +572,7 @@ XYZ COMPANY | +15557654321"></textarea>
 
 
   /* ============================================================
-     STATUS
+     NORMALIZACIJA STATUSA
      ============================================================ */
 
   function normalizujStatus(status) {
@@ -578,32 +590,45 @@ XYZ COMPANY | +15557654321"></textarea>
 
   function statusZavrsen(status) {
 
-    const s = normalizujStatus(status);
+    const s =
+      normalizujStatus(status);
 
     return [
+
       "completed",
       "complete",
+
       "hangup",
       "hung_up",
+
       "failed",
+
       "busy",
+
       "no_answer",
       "no-answer",
+
       "canceled",
       "cancelled",
+
       "error",
+
       "ended",
       "finished",
+
       "disconnected"
+
     ].includes(s);
   }
 
 
   function statusAktivan(status) {
 
-    const s = normalizujStatus(status);
+    const s =
+      normalizujStatus(status);
 
     return [
+
       "initiated",
       "ringing",
       "answered",
@@ -612,12 +637,45 @@ XYZ COMPANY | +15557654321"></textarea>
       "in-progress",
       "call_in_progress",
       "poziv_u_toku"
+
     ].includes(s);
   }
 
 
   /* ============================================================
-     UČITAJ POZIVE
+     PRONAĐI VRIJEDNOST IZ RAZGOVORI_TELNYX
+     ============================================================ */
+
+  function pronadjiVrijednost(
+    obj,
+    moguceKolone
+  ) {
+
+    if (!obj) {
+      return null;
+    }
+
+    for (
+      const kolona
+      of moguceKolone
+    ) {
+
+      if (
+        obj[kolona] !== undefined &&
+        obj[kolona] !== null &&
+        obj[kolona] !== ""
+      ) {
+
+        return obj[kolona];
+      }
+    }
+
+    return null;
+  }
+
+
+  /* ============================================================
+     UČITAJ TELNYX_POZIVI
      ============================================================ */
 
   async function ucitajPozive() {
@@ -633,11 +691,6 @@ XYZ COMPANY | +15557654321"></textarea>
       </div>`;
 
     try {
-
-      /*
-       * ID se koristi samo interno.
-       * Ne prikazuje se korisniku.
-       */
 
       const data =
         await supabaseFetch(
@@ -680,189 +733,156 @@ XYZ COMPANY | +15557654321"></textarea>
      RENDER TABELE
      ============================================================ */
 
- function renderTabela() {
+  function renderTabela() {
 
-  const container =
-    document.getElementById("tableContainer");
+    const container =
+      document.getElementById(
+        "tableContainer"
+      );
 
-  if (!sviPozivi.length) {
+    if (!sviPozivi.length) {
 
-    container.innerHTML =
-      `<div class="empty">
-        Nema kontakata u TELNYX_POZIVI.
-      </div>`;
+      container.innerHTML =
+        `<div class="empty">
+          Nema kontakata u TELNYX_POZIVI.
+        </div>`;
 
-    return;
-  }
-
-
-  let html = `
-
-    <table>
-
-      <thead>
-
-        <tr>
-
-          <th>FIRMA</th>
-
-          <th>BROJ</th>
-
-          <th>POČETAK POZIVA</th>
-
-          <th>STATUS</th>
-
-          <th>AKCIJE</th>
-
-          <th>AUDIO</th>
-
-          <th>TRAJANJE</th>
-
-        </tr>
-
-      </thead>
-
-      <tbody>
-  `;
+      return;
+    }
 
 
-  for (const red of sviPozivi) {
+    let html = `
 
-    const aktivan =
-      aktivniPoziv &&
-      Number(aktivniPoziv.id) ===
-      Number(red.ID);
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>FIRMA</th>
+
+            <th>BROJ</th>
+
+            <th>STATUS</th>
+
+            <th>VRIJEME</th>
+
+            <th>TRANSCRIPT & AKCIJE</th>
+
+            <th>AUDIO</th>
+
+            <th>TRAJANJE</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+    `;
 
 
-    const status =
-      red.STATUS || "NIJE ZVAN";
-
-
-    let statusClass = "status";
-
-
-    if (
-      statusAktivan(status) ||
-      aktivan
+    for (
+      const red
+      of sviPozivi
     ) {
 
-      statusClass +=
-        " status-active";
-
-    }
-
-    else if (
-      statusZavrsen(status)
-    ) {
-
-      statusClass +=
-        " status-finished";
-
-    }
-
-    else if (
-      normalizujStatus(status)
-        .includes("error")
-    ) {
-
-      statusClass +=
-        " status-error";
-
-    }
-
-    else {
-
-      statusClass +=
-        " status-wait";
-    }
+      const aktivan =
+        aktivniPoziv &&
+        Number(aktivniPoziv.id) ===
+        Number(red.ID);
 
 
-    const audio =
-      red.AUDIO_URL || "";
+      const status =
+        red.STATUS || "";
 
 
-    /*
-     * OVO JE JEDINO VRIJEME KOJE PRIKAZUJEMO
-     * KORISNIKU.
-     */
-
-    const pocetakPoziva =
-      red.POCETAK_POZIVA || "";
+      let statusClass =
+        "status";
 
 
-    /*
-     * TRANSKRIPT SE NE PRIKAZUJE U TABELI.
-     * Dugme TRANSKRIPT samo otvara TRANSCRIPT.HTML.
-     */
+      if (
+        statusAktivan(status) ||
+        aktivan
+      ) {
+
+        statusClass +=
+          " status-active";
+
+      }
+
+      else if (
+        statusZavrsen(status)
+      ) {
+
+        statusClass +=
+          " status-finished";
+
+      }
+
+      else if (
+        normalizujStatus(status)
+          .includes("error")
+      ) {
+
+        statusClass +=
+          " status-error";
+
+      }
+
+      else {
+
+        statusClass +=
+          " status-wait";
+      }
 
 
-    html += `
-
-      <tr
-        class="${aktivan ? "call-active" : ""}"
-        data-id="${escapeHtml(red.ID)}">
-
-
-        <!-- FIRMA -->
-
-        <td>
-
-          <strong>
-            ${escapeHtml(red.FIRMA || "")}
-          </strong>
-
-        </td>
+      const transcript =
+        red.TRANSCRIPT
+          ? String(red.TRANSCRIPT)
+          : "";
 
 
-        <!-- BROJ -->
-
-        <td>
-          ${escapeHtml(red.BROJ || "")}
-        </td>
+      const audio =
+        red.AUDIO_URL || "";
 
 
-        <!-- POČETAK POZIVA -->
+      html += `
 
-        <td class="start-time">
+        <tr
+          class="${aktivan ? "call-active" : ""}"
+          data-id="${escapeHtml(red.ID)}">
 
-          ${
-            pocetakPoziva
+          <td>
+            <strong>${escapeHtml(red.FIRMA)}</strong>
+          </td>
 
-              ?
+          <td>
+            ${escapeHtml(red.BROJ)}
+          </td>
 
-              escapeHtml(
-                formatDatum(
-                  pocetakPoziva
-                )
-              )
+          <td class="${statusClass}">
+            ${escapeHtml(status)}
+          </td>
 
-              :
+          <td>
+            ${escapeHtml(
+              formatDatum(red.VRIJEME)
+            )}
+          </td>
 
-              `<span class="small">
-                Nije pozvan
-              </span>`
-          }
+          <td class="transcript-cell">
 
-        </td>
+            <div class="transcript-text">
 
+              ${
+                transcript
+                  ? escapeHtml(
+                      transcript.toUpperCase()
+                    )
+                  : "-"
+              }
 
-        <!-- STATUS -->
-
-        <td class="${statusClass}">
-
-          ${escapeHtml(status)}
-
-        </td>
-
-
-        <!-- AKCIJE -->
-
-        <td>
-
-          <div class="action-buttons">
-
-
-            <!-- POZOVI PRVO -->
+            </div>
 
             <button
               class="call-button"
@@ -881,100 +901,64 @@ XYZ COMPANY | +15557654321"></textarea>
 
             </button>
 
-
-            <!-- TRANSKRIPT DRUGI -->
-
             <button
               class="transcript-button"
-              onclick="otvoriTranscript(
-                ${JSON.stringify(red.BROJ)}
-              )">
+              onclick="otvoriTranscript('${escapeHtml(red.BROJ)}')">
 
-              TRANSKRIPT
+              TRANSCRIPT
 
             </button>
 
+          </td>
 
-          </div>
+          <td>
 
-        </td>
-
-
-        <!-- AUDIO -->
-
-        <td>
-
-          ${
-            validAudioUrl(audio)
+            ${
+              validAudioUrl(audio)
 
               ?
 
               `
-              <a
-                class="audio-link"
-                href="${escapeHtml(audio)}"
-                target="_blank"
-                rel="noopener">
-
+              <a class="audio-link" href="${escapeHtml(audio)}" target="_blank">
                 🔊 Pusti audio
-
               </a>
               `
 
               :
 
-              `
-              <span class="small">
+              `<span class="small">
                 Nema fajla
-              </span>
-              `
-          }
+              </span>`
+            }
 
-        </td>
+          </td>
 
-
-        <!-- TRAJANJE -->
-
-        <td>
-
-          ${
-            red.TRAJANJE_SEKUNDE !== null &&
-            red.TRAJANJE_SEKUNDE !== undefined
-
-              ?
-
-              escapeHtml(
-                formatDuration(
-                  red.TRAJANJE_SEKUNDE
-                )
+          <td>
+            ${escapeHtml(
+              formatDuration(
+                red.TRAJANJE_SEKUNDE
               )
+            )}
+          </td>
 
-              :
-
-              "-"
-          }
-
-        </td>
+        </tr>
+      `;
+    }
 
 
-      </tr>
+    html += `
 
+        </tbody>
+
+      </table>
     `;
+
+
+    container.innerHTML =
+      html;
   }
 
 
-  html += `
-
-      </tbody>
-
-    </table>
-
-  `;
-
-
-  container.innerHTML =
-    html;
-}
   /* ============================================================
      POZIV KONTAKTA
      ============================================================ */
@@ -1015,13 +999,6 @@ XYZ COMPANY | +15557654321"></textarea>
     }
 
 
-    /*
-     * TAČAN POČETAK POZIVA
-     *
-     * Čuvamo vrijeme prije slanja
-     * zahtjeva Telnyxu.
-     */
-
     const start =
       new Date();
 
@@ -1052,10 +1029,6 @@ XYZ COMPANY | +15557654321"></textarea>
 
     try {
 
-      /*
-       * ČUVAMO POČETAK POZIVA
-       */
-
       await updatePoziv(
         redId,
         {
@@ -1072,16 +1045,15 @@ XYZ COMPANY | +15557654321"></textarea>
           STATUS:
             "POZIV U TOKU",
 
+          VRIJEME:
+            start.toISOString(),
+
           UPDATED_AT:
             new Date().toISOString()
 
         }
       );
 
-
-      /*
-       * POZIV TELNYX
-       */
 
       const response =
         await fetch(
@@ -1130,11 +1102,6 @@ XYZ COMPANY | +15557654321"></textarea>
         );
       }
 
-
-      /*
-       * TELNYX CALL ID SE I DALJE ČUVA U BAZI,
-       * ALI SE NE PRIKAZUJE U TABELI.
-       */
 
       if (
         result.call_control_id
@@ -1200,14 +1167,12 @@ XYZ COMPANY | +15557654321"></textarea>
 
       zaustaviPolling();
 
-
       await ucitajPozive();
 
 
       alert(
         "Poziv nije pokrenut:\n\n"
-        +
-        error.message
+        + error.message
       );
     }
   }
@@ -1253,14 +1218,23 @@ XYZ COMPANY | +15557654321"></textarea>
 
 
     const url =
+
       `/rest/v1/${RAZGOVORI_TABLE}`
+
       +
+
       `?select=*`
+
       +
+
       `&BROJ=eq.${encodeURIComponent(broj)}`
+
       +
+
       `&order=ID.desc`
+
       +
+
       `&limit=1`;
 
 
@@ -1282,39 +1256,7 @@ XYZ COMPANY | +15557654321"></textarea>
 
 
   /* ============================================================
-     PRONAĐI VRIJEDNOST
-     ============================================================ */
-
-  function pronadjiVrijednost(
-    obj,
-    moguceKolone
-  ) {
-
-    if (!obj) {
-      return null;
-    }
-
-    for (
-      const kolona
-      of moguceKolone
-    ) {
-
-      if (
-        obj[kolona] !== undefined &&
-        obj[kolona] !== null &&
-        obj[kolona] !== ""
-      ) {
-
-        return obj[kolona];
-      }
-    }
-
-    return null;
-  }
-
-
-  /* ============================================================
-     SINHRONIZACIJA RAZGOVORA
+     SINHRONIZACIJA RAZGOVORI_TELNYX
      ============================================================ */
 
   async function sinhronizujRazgovor(
@@ -1331,6 +1273,7 @@ XYZ COMPANY | +15557654321"></textarea>
 
 
       if (!razgovor) {
+
         return null;
       }
 
@@ -1371,15 +1314,21 @@ XYZ COMPANY | +15557654321"></textarea>
         pronadjiVrijednost(
           razgovor,
           [
+
             RAZGOVORI_AUDIO_COLUMN,
+
             "AUDIO_URL",
             "audio_url",
+
             "AUDIO",
             "audio",
+
             "RECORDING_URL",
             "recording_url",
+
             "RECORDING",
             "recording"
+
           ]
         );
 
@@ -1398,11 +1347,6 @@ XYZ COMPANY | +15557654321"></textarea>
 
       const updateData = {};
 
-
-      /*
-       * OVI PODACI SE KORISTE U POZADINI,
-       * ALI SE NE PRIKAZUJU U TABELI.
-       */
 
       if (
         razgovoriId !== null
@@ -1427,7 +1371,8 @@ XYZ COMPANY | +15557654321"></textarea>
       ) {
 
         updateData.TRANSCRIPT =
-          String(transcript);
+          String(transcript)
+            .toUpperCase();
       }
 
 
@@ -1441,15 +1386,11 @@ XYZ COMPANY | +15557654321"></textarea>
 
 
       if (
-        vrijeme !== null &&
-        !updateData.POCETAK_POZIVA
+        vrijeme !== null
       ) {
 
-        /*
-         * VRIJEME iz razgovora ne mijenjamo
-         * ako već imamo POCETAK_POZIVA.
-         */
-
+        updateData.VRIJEME =
+          vrijeme;
       }
 
 
@@ -1534,7 +1475,9 @@ XYZ COMPANY | +15557654321"></textarea>
 
   function zaustaviPolling() {
 
-    if (pollingTimer) {
+    if (
+      pollingTimer
+    ) {
 
       clearInterval(
         pollingTimer
@@ -1620,7 +1563,7 @@ XYZ COMPANY | +15557654321"></textarea>
 
 
   /* ============================================================
-     UČITAJ JEDAN POZIV
+     UČITAJ JEDAN RED
      ============================================================ */
 
   async function ucitajJedanPoziv(
@@ -1739,6 +1682,7 @@ XYZ COMPANY | +15557654321"></textarea>
 
       zaustaviPolling();
 
+
       aktivniPoziv = null;
 
 
@@ -1748,9 +1692,13 @@ XYZ COMPANY | +15557654321"></textarea>
         )
         .textContent =
           trajanje !== null
+
             ?
+
             `Poziv završen. Trajanje: ${formatDuration(trajanje)}`
+
             :
+
             "Poziv završen.";
 
 
@@ -1847,15 +1795,16 @@ XYZ COMPANY | +15557654321"></textarea>
 
 
   /* ============================================================
-     DODAJ KONTAKTE
+     DODAJ VIŠE KONTAKATA
      ============================================================ */
 
   async function sacuvajKontakte() {
 
     const input =
-      document.getElementById(
-        "contactsInput"
-      );
+      document
+        .getElementById(
+          "contactsInput"
+        );
 
 
     const text =
@@ -1941,9 +1890,7 @@ XYZ COMPANY | +15557654321"></textarea>
     if (!kontakti.length) {
 
       alert(
-        "Nisam pronašao ispravan format.\n\n" +
-        "Koristi:\n" +
-        "FIRMA | +15551234567"
+        "Nisam pronašao ispravan format.\n\nKoristi:\nFIRMA | +15551234567"
       );
 
       return;
@@ -1972,7 +1919,9 @@ XYZ COMPANY | +15557654321"></textarea>
 
       input.value = "";
 
+
       zatvoriDodajKontakte();
+
 
       await ucitajPozive();
 
@@ -2002,7 +1951,9 @@ XYZ COMPANY | +15557654321"></textarea>
 
   function pokreniAutoRefresh() {
 
-    if (autoRefreshTimer) {
+    if (
+      autoRefreshTimer
+    ) {
 
       clearInterval(
         autoRefreshTimer
@@ -2014,9 +1965,13 @@ XYZ COMPANY | +15557654321"></textarea>
       setInterval(
         async () => {
 
-          if (aktivniPoziv) {
+          if (
+            aktivniPoziv
+          ) {
+
             return;
           }
+
 
           await ucitajPozive();
 
