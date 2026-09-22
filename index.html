@@ -694,7 +694,7 @@ XYZ COMPANY | +15557654321"></textarea>
 
       const data =
         await supabaseFetch(
-          `/rest/v1/${TELNYX_TABLE}?select=*&order=CREATED_AT.desc,ID.desc`
+          `/rest/v1/${TELNYX_TABLE}?select=*&order=ID.desc`
         );
 
       sviPozivi =
