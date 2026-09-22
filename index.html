@@ -96,7 +96,6 @@
 
     table {
       width: 100%;
-      min-width: 1800px;
       border-collapse: collapse;
     }
 
@@ -152,15 +151,14 @@
       overflow: auto;
       text-transform: uppercase;
       font-size: 13px;
+      margin-bottom: 8px;
     }
 
-    .audio-cell {
-      min-width: 260px;
-    }
-
-    audio {
-      width: 250px;
-      max-width: 100%;
+    .audio-link {
+      color: #2563eb;
+      text-decoration: underline;
+      font-weight: bold;
+      font-size: 13px;
     }
 
     .modal-bg {
@@ -227,6 +225,7 @@
     .call-button {
       background: #16a34a;
       color: white;
+      margin-right: 6px;
     }
 
     .transcript-button {
@@ -343,7 +342,7 @@ XYZ COMPANY | +15557654321"></textarea>
 <script>
 
   /* ============================================================
-     KONFIGURACIJA (Ažurirana na novi Supabase projekat i ključ)
+     KONFIGURACIJA
      ============================================================ */
 
   const SUPABASE_URL =
@@ -362,10 +361,6 @@ XYZ COMPANY | +15557654321"></textarea>
   const RAZGOVORI_TABLE =
     "RAZGOVORI_TELNYX";
 
-
-  /*
-     OVDJE JE NAZIV AUDIO KOLONE U RAZGOVORI_TELNYX.
-  */
 
   const RAZGOVORI_AUDIO_COLUMN =
     "AUDIO_URL";
@@ -435,10 +430,10 @@ XYZ COMPANY | +15557654321"></textarea>
       throw new Error(
         typeof data === "object"
           ? (
-            data.message ||
-            data.error ||
-            JSON.stringify(data)
-          )
+              data.message ||
+              data.error ||
+              JSON.stringify(data)
+            )
           : data
       );
     }
@@ -765,8 +760,6 @@ XYZ COMPANY | +15557654321"></textarea>
 
           <tr>
 
-            <th>ID</th>
-
             <th>FIRMA</th>
 
             <th>BROJ</th>
@@ -775,25 +768,11 @@ XYZ COMPANY | +15557654321"></textarea>
 
             <th>VRIJEME</th>
 
-            <th>TRANSCRIPT</th>
+            <th>TRANSCRIPT & AKCIJE</th>
 
             <th>AUDIO</th>
 
-            <th>TELNYX CALL ID</th>
-
-            <th>RAZGOVORI ID</th>
-
-            <th>POČETAK POZIVA</th>
-
-            <th>KRAJ POZIVA</th>
-
             <th>TRAJANJE</th>
-
-            <th>CREATED AT</th>
-
-            <th>UPDATED AT</th>
-
-            <th>AKCIJA</th>
 
           </tr>
 
@@ -875,11 +854,7 @@ XYZ COMPANY | +15557654321"></textarea>
           data-id="${escapeHtml(red.ID)}">
 
           <td>
-            ${escapeHtml(red.ID)}
-          </td>
-
-          <td>
-            ${escapeHtml(red.FIRMA)}
+            <strong>${escapeHtml(red.FIRMA)}</strong>
           </td>
 
           <td>
@@ -910,96 +885,6 @@ XYZ COMPANY | +15557654321"></textarea>
 
             </div>
 
-            <br>
-
-            <button
-              class="transcript-button"
-              onclick="otvoriTranscript('${escapeHtml(red.BROJ)}')">
-
-              TRANSCRIPT
-
-            </button>
-
-          </td>
-
-          <td class="audio-cell">
-
-            ${
-              validAudioUrl(audio)
-
-              ?
-
-              `
-              <audio
-                controls
-                preload="none"
-                src="${escapeHtml(audio)}">
-              </audio>
-              `
-
-              :
-
-              `<span class="small">
-                Nema audio fajla
-              </span>`
-            }
-
-          </td>
-
-          <td>
-            ${escapeHtml(
-              red.TELNYX_CALL_ID || ""
-            )}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              red.RAZGOVORI_ID || ""
-            )}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              formatDatum(
-                red.POCETAK_POZIVA
-              )
-            )}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              formatDatum(
-                red.KRAJ_POZIVA
-              )
-            )}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              formatDuration(
-                red.TRAJANJE_SEKUNDE
-              )
-            )}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              formatDatum(
-                red.CREATED_AT
-              )
-            )}
-          </td>
-
-          <td>
-            ${escapeHtml(
-              formatDatum(
-                red.UPDATED_AT
-              )
-            )}
-          </td>
-
-          <td>
-
             <button
               class="call-button"
               onclick="pozoviKontakt(
@@ -1017,6 +902,44 @@ XYZ COMPANY | +15557654321"></textarea>
 
             </button>
 
+            <button
+              class="transcript-button"
+              onclick="otvoriTranscript('${escapeHtml(red.BROJ)}')">
+
+              TRANSCRIPT
+
+            </button>
+
+          </td>
+
+          <td>
+
+            ${
+              validAudioUrl(audio)
+
+              ?
+
+              `
+              <a class="audio-link" href="${escapeHtml(audio)}" target="_blank">
+                🔊 Pusti audio
+              </a>
+              `
+
+              :
+
+              `<span class="small">
+                Nema fajla
+              </span>`
+            }
+
+          </td>
+
+          <td>
+            ${escapeHtml(
+              formatDuration(
+                red.TRAJANJE_SEKUNDE
+              )
+            )}
           </td>
 
         </tr>
@@ -1107,10 +1030,6 @@ XYZ COMPANY | +15557654321"></textarea>
 
     try {
 
-      /*
-         1. Prvo zapišemo početak poziva
-     */
-
       await updatePoziv(
         redId,
         {
@@ -1136,10 +1055,6 @@ XYZ COMPANY | +15557654321"></textarea>
         }
       );
 
-
-      /*
-         2. Pozivamo postojeću Edge Function
-     */
 
       const response =
         await fetch(
@@ -1189,10 +1104,6 @@ XYZ COMPANY | +15557654321"></textarea>
       }
 
 
-      /*
-         3. Sačuvaj Telnyx Call ID
-     */
-
       if (
         result.call_control_id
       ) {
@@ -1212,30 +1123,17 @@ XYZ COMPANY | +15557654321"></textarea>
       }
 
 
-      /*
-         4. Pokušaj odmah pronaći
-             RAZGOVORI_TELNYX
-     */
-
       await sinhronizujRazgovor(
         redId,
         broj
       );
 
 
-      /*
-         5. Pokreni polling
-     */
-
       pokreniPolling(
         redId,
         broj
       );
 
-
-      /*
-         6. Odmah osvježi
-     */
 
       await ucitajPozive();
 
@@ -1381,10 +1279,6 @@ XYZ COMPANY | +15557654321"></textarea>
       }
 
 
-      /*
-         ID razgovora
-     */
-
       const razgovoriId =
         pronadjiVrijednost(
           razgovor,
@@ -1394,10 +1288,6 @@ XYZ COMPANY | +15557654321"></textarea>
           ]
         );
 
-
-      /*
-         STATUS
-     */
 
       const status =
         pronadjiVrijednost(
@@ -1411,10 +1301,6 @@ XYZ COMPANY | +15557654321"></textarea>
         );
 
 
-      /*
-         TRANSCRIPT
-     */
-
       const transcript =
         pronadjiVrijednost(
           razgovor,
@@ -1424,10 +1310,6 @@ XYZ COMPANY | +15557654321"></textarea>
           ]
         );
 
-
-      /*
-         AUDIO
-     */
 
       const audioUrl =
         pronadjiVrijednost(
@@ -1451,10 +1333,6 @@ XYZ COMPANY | +15557654321"></textarea>
           ]
         );
 
-
-      /*
-         VRIJEME razgovora
-     */
 
       const vrijeme =
         pronadjiVrijednost(
@@ -1532,11 +1410,6 @@ XYZ COMPANY | +15557654321"></textarea>
       }
 
 
-      /*
-         Ako je razgovor završen,
-         izračunaj trajanje.
-     */
-
       if (
         statusZavrsen(status)
       ) {
@@ -1594,10 +1467,6 @@ XYZ COMPANY | +15557654321"></textarea>
       );
 
 
-    /*
-      Prva provjera odmah
-   */
-
     provjeriPoziv(
       redId,
       broj
@@ -1631,20 +1500,12 @@ XYZ COMPANY | +15557654321"></textarea>
 
     try {
 
-      /*
-        1. Uzmi najnoviji RAZGOVORI_TELNYX
-     */
-
       const razgovor =
         await sinhronizujRazgovor(
           redId,
           broj
         );
 
-
-      /*
-        2. Provjeri da li je završen
-     */
 
       if (
         razgovor &&
@@ -1654,11 +1515,6 @@ XYZ COMPANY | +15557654321"></textarea>
         return;
       }
 
-
-      /*
-        3. Ako nema razgovora,
-           provjeri sam TELNYX_POZIVI
-     */
 
       const red =
         await ucitajJedanPoziv(
@@ -1670,12 +1526,6 @@ XYZ COMPANY | +15557654321"></textarea>
         return;
       }
 
-
-      /*
-        Ako je status završen
-        i imamo početak,
-        izračunaj kraj.
-     */
 
       if (
         statusZavrsen(
@@ -1766,11 +1616,6 @@ XYZ COMPANY | +15557654321"></textarea>
       let start =
         red.POCETAK_POZIVA;
 
-
-      /*
-        Ako nema start u bazi,
-        pokušaj iz aktivnog poziva.
-     */
 
       if (
         !start &&
@@ -1877,13 +1722,6 @@ XYZ COMPANY | +15557654321"></textarea>
      ============================================================ */
 
   async function sledeciPoziv() {
-
-    /*
-      NE BRIŠE NIŠTA.
-
-      Samo prekida lokalno praćenje
-      trenutnog poziva i osvježava tabelu.
-   */
 
     zaustaviPolling();
 
@@ -1998,16 +1836,6 @@ XYZ COMPANY | +15557654321"></textarea>
       const line
       of lines
     ) {
-
-      /*
-        Podržava:
-
-        FIRMA | BROJ
-
-        ili
-
-        FIRMA,BROJ
-     */
 
       let parts =
         line.includes("|")
@@ -2137,11 +1965,6 @@ XYZ COMPANY | +15557654321"></textarea>
     autoRefreshTimer =
       setInterval(
         async () => {
-
-          /*
-            Dok traje aktivni poziv,
-            polling vodi računa o njemu.
-         */
 
           if (
             aktivniPoziv
