@@ -845,19 +845,24 @@ XYZ COMPANY | +15557654321"></textarea>
       const audio =
         red.AUDIO_URL || "";
 
+      // Sigurno pakovanje podataka za dugme da ne puca sintaksa
+      const safeId = escapeHtml(red.ID);
+      const safeBroj = escapeHtml(red.BROJ);
+      const safeFirma = escapeHtml(red.FIRMA || "");
+
 
       html += `
 
         <tr
           class="${aktivan ? "call-active" : ""}"
-          data-id="${escapeHtml(red.ID)}">
+          data-id="${safeId}">
 
           <td>
-            <strong>${escapeHtml(red.FIRMA)}</strong>
+            <strong>${safeFirma}</strong>
           </td>
 
           <td>
-            ${escapeHtml(red.BROJ)}
+            ${safeBroj}
           </td>
 
           <td class="${statusClass}">
@@ -886,11 +891,7 @@ XYZ COMPANY | +15557654321"></textarea>
 
             <button
               class="call-button"
-              onclick="pozoviKontakt(
-                ${JSON.stringify(red.ID)},
-                ${JSON.stringify(red.BROJ)},
-                ${JSON.stringify(red.FIRMA || "")}
-              )"
+              onclick="pozoviKontakt('${safeId}', '${safeBroj}', '${safeFirma.replace(/'/g, "\\'")}')"
               ${aktivan ? "disabled" : ""}>
 
               ${
@@ -903,7 +904,7 @@ XYZ COMPANY | +15557654321"></textarea>
 
             <button
               class="transcript-button"
-              onclick="otvoriTranscript('${escapeHtml(red.BROJ)}')">
+              onclick="otvoriTranscript('${safeBroj}')">
 
               TRANSCRIPT
 
