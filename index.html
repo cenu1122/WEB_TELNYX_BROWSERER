@@ -1740,13 +1740,13 @@ XYZ COMPANY | +15557654321"></textarea>
      ============================================================ */
 
   function otvoriTranscript(
-    broj
+    redId
   ) {
 
-    if (!broj) {
+    if (!redId) {
 
       alert(
-        "Broj telefona nije pronađen."
+        "ID poziva nije pronađen."
       );
 
       return;
@@ -1755,9 +1755,9 @@ XYZ COMPANY | +15557654321"></textarea>
 
     window.open(
 
-      "TRANSCRIPT.html?phone="
+      "TRANSCRIPT.html?id="
       +
-      encodeURIComponent(broj),
+      encodeURIComponent(redId),
 
       "_blank"
 
