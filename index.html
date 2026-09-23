@@ -848,6 +848,7 @@ XYZ COMPANY | +15557654321"></textarea>
       const safeId = escapeHtml(red.ID);
       const safeBroj = escapeHtml(red.BROJ);
       const safeFirma = escapeHtml(red.FIRMA || "");
+      const razgovoriId = red.RAZGOVORI_ID ? escapeHtml(red.RAZGOVORI_ID) : "";
 
 
       html += `
@@ -903,7 +904,7 @@ XYZ COMPANY | +15557654321"></textarea>
 
             <button
               class="transcript-button"
-              onclick="otvoriTranscript('${safeBroj}')">
+              onclick="otvoriTranscript('${razgovoriId}')">
 
               TRANSCRIPT
 
@@ -1260,6 +1261,7 @@ XYZ COMPANY | +15557654321"></textarea>
     redId,
     broj
   ) {
+
 
     try {
 
@@ -1740,13 +1742,13 @@ XYZ COMPANY | +15557654321"></textarea>
      ============================================================ */
 
   function otvoriTranscript(
-    redId
+    razgovoriId
   ) {
 
-    if (!redId) {
+    if (!razgovoriId || razgovoriId === "null" || razgovoriId === "undefined" || razgovoriId === "") {
 
       alert(
-        "ID poziva nije pronađen."
+        "Još uvijek nema povezanog ID-ja razgovora za ovaj poziv."
       );
 
       return;
@@ -1755,9 +1757,9 @@ XYZ COMPANY | +15557654321"></textarea>
 
     window.open(
 
-      "TRANSCRIPT.html?id="
+      "TRANSCRIPT.html?razgovori_id="
       +
-      encodeURIComponent(redId),
+      encodeURIComponent(razgovoriId),
 
       "_blank"
 
