@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="bs">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Svi Razgovori - Autovoxai.com</title>
@@ -29,13 +30,12 @@
 
 <script>
     const SUPABASE_URL = "https://lvvidixbdtdjfwxxxqzr.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2dmlkaXhiZHRkamZ3eHx4cXpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NjgzMjgsImV4cCI6MjA5MTE0NDMyOH0.HE3-5jMrxZ7suTR0lebcfZB-9WqslwExarGoxDYMA_s"; 
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2dmlkaXhiZHRkamZ3eHh4cXpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NjgzMjgsImV4cCI6MjA5MTE0NDMyOH0.HE3-5jMrxZ7suTR0lebcfZB-9WqslwExarGoxDYMA_s"; 
     
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function loadAllCalls() {
         try {
-            // Nema više .eq() ni .limit() - povlačimo SVE redove sortirano od najnovijeg ka najstarijem
             let { data, error } = await supabaseClient
                 .from("RAZGOVORI_TELNYX")
                 .select("*")
@@ -56,15 +56,14 @@
                 return;
             }
 
-            // Petlja koja prolazi kroz SVAKI red u tabeli i pravi karticu
             data.forEach(row => {
                 const card = document.createElement('div');
                 card.className = 'call-card';
 
                 const callId = row.ID ?? 'N/A';
                 const phoneTo = row.TO ?? 'Nepoznato';
-                const status = row.STATUS_POZIVA ?? 'Nepoznato';
-                const audioUrl = row.URL;
+                const status = row.STATUS_POZIVA ?? row.STATUS ?? 'Nepoznato';
+                const audioUrl = row.URL ?? row.AUDIO_URL;
 
                 let cardHtml = `
                     <div class="call-header">
@@ -74,16 +73,17 @@
                     <div style="margin-bottom: 10px;"><strong>Transkript razgovora:</strong></div>
                 `;
 
-                // Parsiranje transkripcije za svaki red posebno
+                const rawTranscript = row.TRANSKRIPCIJA ?? row.TRANSCRIPT;
+
                 let transcriptionArray = [];
-                if (typeof row.TRANSKRIPCIJA === 'string') {
+                if (typeof rawTranscript === 'string') {
                     try {
-                        transcriptionArray = JSON.parse(row.TRANSKRIPCIJA);
+                        transcriptionArray = JSON.parse(rawTranscript);
                     } catch (e) {
-                        transcriptionArray = [];
+                        transcriptionArray = [{ role: 'user', text: rawTranscript }];
                     }
-                } else if (Array.isArray(row.TRANSKRIPCIJA)) {
-                    transcriptionArray = row.TRANSKRIPCIJA;
+                } else if (Array.isArray(rawTranscript)) {
+                    transcriptionArray = rawTranscript;
                 }
 
                 if (transcriptionArray.length === 0) {
@@ -100,7 +100,6 @@
                     });
                 }
 
-                // Ako red ima sačuvan audio snimak, ubaci player
                 if (audioUrl) {
                     cardHtml += `
                         <div style="margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 10px;">
